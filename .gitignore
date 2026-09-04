@@ -1,0 +1,14 @@
+# Entornos y cachés
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# Secretos: la llave vive en el entorno o en los secretos de Colab
+.env
+*.key
+# Temporales de PowerPoint y del sistema
+~$*
+.DS_Store
+# Salidas generadas por los starters
+*_extra.jsonl
