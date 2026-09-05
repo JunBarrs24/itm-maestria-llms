@@ -4,6 +4,24 @@ Cada semana documenta: pregunta central, conceptos, conocimientos previos, demo 
 
 ---
 
+### TL;DR: 
+
+* Semana 1. Sistemas de software con LLMs
+* Semana 2. Dentro de un LLM: tokens, Transformers y generación
+* Semana 3. Del modelo base al asistente moderno
+* Semana 4. Prompt Engineering para aplicaciones
+* Semana 5. RAG Fundamentals: construir el primer RAG
+* Semana 6. Retrieval Engineering
+* Semana 7. RAG avanzado: hybrid retrieval, reranking, contexto y evaluación
+* Semana 8. Tool Calling y LLM Workflows
+* Semana 9. Context Engineering, State y Memory
+* Semana 10. De workflow a agente: loop manual y Responses API
+* Semana 11. OpenAI Agents SDK
+* Semana 12. Sistemas Multi-Agente
+* Semana 13. LangGraph y control explícito del workflow
+* Semana 14. Reasoning, MCP y patrones agentic
+* Semana 15. Producción de sistemas inteligentes
+
 ### Semana 1. Sistemas de software con LLMs
 
 **Bloque:** Fundamentos. **Unidad del temario:** 1.1.
