@@ -91,7 +91,7 @@ La asignatura fortalece competencias en:
 
 # 5. Contenido temático
 
-# UNIDAD I — Fundamentos de LLMs
+# UNIDAD I. Fundamentos de LLMs
 
 ## Descripción
 
@@ -188,7 +188,7 @@ El estudiante será capaz de:
 
 ---
 
-# UNIDAD II — Prompt Engineering y Retrieval-Augmented Generation
+# UNIDAD II. Prompt Engineering y Retrieval-Augmented Generation
 
 ## Descripción
 
@@ -331,7 +331,7 @@ Patrones por tarea:
 
 ---
 
-# UNIDAD III — Agentes y Sistemas Agentic
+# UNIDAD III. Agentes y Sistemas Agentic
 
 ## Descripción
 
@@ -499,13 +499,13 @@ Riesgos:
 
 ---
 
-# UNIDAD IV — Modelos de Pensamiento y Razonamiento
+# UNIDAD IV. Modelos de Pensamiento y Razonamiento
 
 ## Descripción
 
 Esta unidad estudia tareas que requieren descomposición, búsqueda, verificación y razonamiento multi-paso.
 
-El énfasis no consiste en utilizar siempre modelos razonadores, sino en decidir cuándo el costo adicional se justifica.
+El énfasis está en decidir cuándo el costo adicional de un modelo razonador se justifica.
 
 ## Objetivos
 
@@ -558,7 +558,7 @@ El estudiante será capaz de:
 
 ---
 
-# UNIDAD V — Operación de Sistemas Inteligentes en Producción
+# UNIDAD V. Operación de Sistemas Inteligentes en Producción
 
 ## Descripción
 
@@ -798,7 +798,7 @@ Posteriormente se podrá utilizar un presupuesto controlado de API para experime
 
 # 9. Planeación de 15 semanas
 
-## Semana 1 — Sistemas de software con LLMs
+## Semana 1. Sistemas de software con LLMs
 
 ### Pregunta
 
@@ -825,7 +825,7 @@ Arquitectura V0 de la mesa de soporte del curso.
 
 ---
 
-# Semana 2 — Dentro de un LLM: Tokens, Transformers y generación
+# Semana 2. Dentro de un LLM: Tokens, Transformers y generación
 
 ### Pregunta
 
@@ -880,7 +880,7 @@ Inspeccionar:
 
 ---
 
-# Semana 3 — De modelo base a asistente moderno
+# Semana 3. De modelo base a asistente moderno
 
 ### Pregunta
 
@@ -910,7 +910,7 @@ Comparar el mismo conjunto de instrucciones sobre:
 
 ---
 
-# Semana 4 — Prompt Engineering para aplicaciones
+# Semana 4. Prompt Engineering para aplicaciones
 
 ### Pregunta
 
@@ -964,7 +964,7 @@ Medir:
 
 ---
 
-# Semana 5 — RAG Fundamentals: construir el primer RAG
+# Semana 5. RAG Fundamentals: construir el primer RAG
 
 ### Pregunta
 
@@ -989,7 +989,7 @@ Construir RAG completo sin framework.
 
 ---
 
-# Semana 6 — Retrieval Engineering
+# Semana 6. Retrieval Engineering
 
 ### Pregunta
 
@@ -1014,7 +1014,7 @@ Cambiar chunk size, overlap y top-k y observar retrieval.
 
 ---
 
-# Semana 7 — Advanced RAG: Retrieval, Context y evaluación
+# Semana 7. Advanced RAG: Retrieval, Context y evaluación
 
 ### Pregunta
 
@@ -1048,7 +1048,7 @@ de:
 
 ---
 
-# Semana 8 — Tool Calling y LLM Workflows
+# Semana 8. Tool Calling y LLM Workflows
 
 ### Pregunta
 
@@ -1080,7 +1080,7 @@ No necesariamente.
 
 ---
 
-# Semana 9 — Context Engineering, State y Memory
+# Semana 9. Context Engineering, State y Memory
 
 ### Pregunta
 
@@ -1130,7 +1130,7 @@ Medir tokens y comprobar si se pierde una restricción crítica.
 
 ---
 
-# Semana 10 — De workflow a agente: Responses API
+# Semana 10. De workflow a agente: Responses API
 
 ### Pregunta
 
@@ -1161,7 +1161,7 @@ El estudiante debe entender el mecanismo antes del framework.
 
 ---
 
-# Semana 11 — OpenAI Agents SDK
+# Semana 11. OpenAI Agents SDK
 
 ### Pregunta
 
@@ -1195,7 +1195,7 @@ Agents SDK.
 
 ---
 
-# Semana 12 — Multi-Agent Systems
+# Semana 12. Multi-Agent Systems
 
 ### Pregunta
 
@@ -1225,7 +1225,7 @@ Más agentes ≠ mejor arquitectura.
 
 ---
 
-# Semana 13 — LangGraph y control explícito
+# Semana 13. LangGraph y control explícito
 
 ### Pregunta
 
@@ -1253,7 +1253,7 @@ graph/state-machine orchestration.
 
 ---
 
-# Semana 14 — Reasoning, MCP y patrones agentic
+# Semana 14. Reasoning, MCP y patrones agentic
 
 ### Pregunta
 
@@ -1291,7 +1291,7 @@ agent.
 
 ---
 
-# Semana 15 — Producción de sistemas inteligentes
+# Semana 15. Producción de sistemas inteligentes
 
 ### Pregunta
 
