@@ -30,3 +30,4 @@ Se revisa en este orden: código determinista → LLM → RAG → workflow → a
 | Semana | Sesión | Notebooks en Colab |
 | --- | --- | --- |
 | [week-01](week-01/README.md) | Semana 1. Sistemas de software con LLMs | [02-student-experiment](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-01/notebooks/02-student-experiment.ipynb) · [practice-starter](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-01/practice/practice-starter.ipynb) |
+| [week-02](week-02/README.md) | Semana 2. Dentro de un LLM: tokens, Transformers y generación | [02-student-experiment](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-02/notebooks/02-student-experiment.ipynb) · [practice-starter](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-02/practice/practice-starter.ipynb) |

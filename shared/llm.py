@@ -103,6 +103,43 @@ class LLM:
         )
 
 
+    def parse(self, user: str, schema, system: str | None = None, max_output_tokens: int = 300,
+              intentos: int = 2, temperature: float = 0.0):
+        """Salida estructurada validada con un modelo Pydantic.
+
+        Con OpenAI el schema se aplica en el servidor (`responses.parse`) y el SDK
+        devuelve la instancia. Con el backend local se pide JSON, se valida con
+        Pydantic y, si falla, se reintenta enviando el error al modelo.
+        Devuelve (instancia, Respuesta, numero_de_llamadas).
+        """
+        if self.backend == "openai":
+            inicio = time.perf_counter()
+            params = dict(model=self.model, input=user, text_format=schema, max_output_tokens=max_output_tokens)
+            if system:
+                params["instructions"] = system
+            r = self.client.responses.parse(**params)
+            return r.output_parsed, Respuesta(r.output_text, r.usage.input_tokens, r.usage.output_tokens,
+                                              time.perf_counter() - inicio, self.model, r), 1
+        import json, re
+        from pydantic import ValidationError
+        esquema = json.dumps(schema.model_json_schema(), ensure_ascii=False)
+        instr = (system or "") + f"\n\nResponde únicamente con un objeto JSON válido que cumpla este JSON Schema, sin texto adicional:\n{esquema}"
+        prompt = user
+        ultimo = None
+        for i in range(1, intentos + 1):
+            r = self.chat(prompt, system=instr.strip(), temperature=temperature, max_output_tokens=max_output_tokens)
+            ultimo = r
+            texto = r.text.strip()
+            m = re.search(r"\{.*\}", texto, re.S)
+            try:
+                if not m:
+                    raise ValueError("la respuesta no contiene un objeto JSON")
+                return schema.model_validate_json(m.group(0)), r, i
+            except (ValidationError, ValueError) as e:
+                prompt = f"{user}\n\nTu respuesta anterior no cumplió el schema: {str(e)[:300]}\nCorrige y responde solo con el JSON."
+        return None, ultimo, intentos
+
+
 def backend_disponible() -> str:
     """'openai' si hay llave en el entorno; 'local' en caso contrario."""
     return "openai" if os.environ.get("OPENAI_API_KEY") else "local"

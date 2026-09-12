@@ -16,3 +16,7 @@
 Distribución: 12 facturación, 8 acceso, 12 error técnico, 8 solicitud de función, 10 otro. Prioridades: 13 alta, 17 media, 20 baja. Seis tickets con datos personales. Un ticket (id 22) contiene una instrucción de prompt injection.
 
 Las etiquetas de los casos ambiguos son una decisión editorial documentada en `nota`. En clase se discute que el dataset también tiene errores de criterio, y que un desacuerdo entre el modelo y la etiqueta no siempre es culpa del modelo.
+
+## corpus/ (semanas 5 a 8)
+
+Base de conocimiento del caso del curso: 12 documentos markdown de Facturio (manuales, políticas, términos, códigos de error, notas de versión, seguridad, un comunicado con inyección deliberada), un gold set de 30 preguntas con evidencia por sección, y `00-biblia-del-producto.md` como fuente de verdad que no se indexa. Contiene términos exactos para búsqueda lexical, dos contradicciones históricas y catorce hechos trampa para evaluar grounding. Ver `corpus/README.md`.
