@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Cuantificar los tickets de soporte del curso en tokens, leer un mapa de atención real sobre un ticket y decidir con mediciones qué estrategia de decoding conviene para clasificar y cuál para redactar.
+Cuantificar la mesa de soporte del curso en tokens, leer un mapa de atención real sobre un ticket y decidir con mediciones qué estrategia de decoding conviene para clasificar y cuál para redactar.
 
 ## Qué se evalúa
 
@@ -52,6 +52,20 @@ Cuantificar los tickets de soporte del curso en tokens, leer un mapa de atenció
 * `practica-02-starter.ipynb`: el starter ejecutado de principio a fin, con los TODO llenos y las salidas visibles.
 
 Se entregan en la plataforma del curso antes de la sesión 3.
+
+## Rúbrica
+
+| Criterio | Insuficiente | Aceptable | Sobresaliente | Peso |
+| --- | --- | --- | --- | --- |
+| Predicciones registradas | Faltan o se escribieron después de ejecutar. | Las tres predicciones están escritas y comparadas. | Además se explica cada diferencia con el mecanismo (subpalabras, idioma, softmax). | 15 |
+| Presupuesto de tokens | Tabla incompleta o cálculo de ventana sin la salida. | Distribución, tokens por palabra y tickets que caben, correctos. | Además la comparación de idiomas y la decisión de la aplicación están argumentadas con los números. | 25 |
+| Atención en numpy | No corre o los pesos no muestran el patrón pedido. | El tercer token atiende sobre todo al primero y se explica por qué. | La explicación relaciona el producto punto de q y k con el peso, y el value con la salida. | 15 |
+| Cabeza de GPT-2 | Sin heatmap o sin descripción. | Heatmap de una cabeza con patrón descrito. | Además se explica la máscara causal en la figura y se distingue el patrón de otra cabeza revisada. | 15 |
+| Tabla de decoding | Incompleta o sin las cinco corridas. | Tabla completa con las cinco configuraciones. | Además se interpreta repetición y varianza con temperature y con el recorte de candidatos. | 15 |
+| Decisión de decoding | Sin justificación o contraria a la evidencia. | Configuración por tarea con justificación. | La justificación cita la tabla y menciona un riesgo de cada elección. | 10 |
+| Reporte | Tablas incompletas o sin notebook ejecutado. | Completo. | Claro y con predicciones conservadas aunque hayan fallado. | 5 |
+
+Total: 100. Se evalúan predicciones, mediciones y argumentación; que el código corra es la condición de entrada.
 
 ## Errores frecuentes
 
