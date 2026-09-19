@@ -18,10 +18,12 @@ en volumen alto, con dataset propio de calidad. Rara vez para agregar
 conocimiento. Antes de afinar, medir que prompting (semana 4) y RAG (5 a 7)
 no bastan.
 
-Uso:
-    pip install -q transformers peft datasets accelerate torch
-    python lora_opcional.py            # entrena y evalúa
-    python lora_opcional.py --pasos 50 # más corto, para probar el flujo
+Versión notebook para Colab: lora_opcional.ipynb (misma carpeta).
+
+Uso como script, desde el entorno del curso (la instalación con pip de un
+Python cualquiera falla si ese Python no tiene ruedas de torch):
+    .venv/bin/python lora_opcional.py            # entrena y evalúa
+    .venv/bin/python lora_opcional.py --pasos 50 # más corto, para probar el flujo
 """
 from __future__ import annotations
 

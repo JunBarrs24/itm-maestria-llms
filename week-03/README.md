@@ -94,4 +94,5 @@ Opcional, sin peso: repetirlo sobre un caso propio.
 * `practice/practice.md`
 * `practice/report-template.md`
 * `resources/`
+* `resources/lora_opcional.ipynb` · [Abrir en Colab](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-03/resources/lora_opcional.ipynb)
 * `slides/week-03-slides.pptx`

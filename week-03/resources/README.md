@@ -25,7 +25,7 @@ Lecturas ordenadas por prioridad. La primera es obligatoria; el resto amplía.
 
 ## Material opcional: fine-tuning con LoRA
 
-`lora_opcional.py` no forma parte de la sesión ni de la práctica. Es para quien necesite afinar un modelo abierto en su tesis y quiera ver el mecanismo completo de la slide 20 en un script que cabe en Colab gratuito.
+`lora_opcional.ipynb` (notebook para Colab, con salidas) y `lora_opcional.py` (el mismo código como script) no forman parte de la sesión ni de la práctica. Es para quien necesite afinar un modelo abierto en su tesis y quiera ver el mecanismo completo de la slide 20 en un script que cabe en Colab gratuito.
 
 Qué hace: congela `Qwen2.5-0.5B`, agrega adaptadores LoRA de rango 16 a las matrices de atención, entrena 150 pasos sobre 30 tickets etiquetados de la mesa de soporte, y compara sobre diez tickets no vistos contra el base con prompt plano y contra el instruct oficial.
 
@@ -39,9 +39,10 @@ Resultado de referencia (CPU de desarrollo, 24 segundos de entrenamiento, adapta
 
 Lectura para la clase: con 30 ejemplos, LoRA enseña el formato y las cinco categorías del dominio, y supera al instruct genérico en esa tarea. No agrega conocimiento. Antes de afinar hay que medir que el prompting con ejemplos de la semana 4 no da la misma accuracy sobre el mismo dataset; si la da, el adaptador no se justifica, porque cuesta un dataset, un entrenamiento por versión y un modelo distinto que operar.
 
+En Colab: abrir `lora_opcional.ipynb` con el enlace del README de la semana y activar la GPU (Entorno de ejecución → Cambiar tipo de entorno → T4). La primera celda instala lo que Colab no trae. Como script, desde el entorno del curso:
+
 ```
-pip install -q transformers peft datasets accelerate torch
-python lora_opcional.py --pasos 150
+.venv/bin/python course/week-03/resources/lora_opcional.py --pasos 150
 ```
 
 Referencia: Hu et al. 2021, *LoRA: Low-Rank Adaptation of Large Language Models*. Librería: PEFT de Hugging Face.
