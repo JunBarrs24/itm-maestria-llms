@@ -134,8 +134,12 @@ class LLM:
     def chat(self, user: str, system: str = SYSTEM, max_output_tokens: int = 200) -> dict:
         t = time.perf_counter()
         if self.backend == "openai":
-            r = self.client.responses.create(model=self.model, instructions=system, input=user,
-                                             max_output_tokens=max_output_tokens)
+            params = dict(model=self.model, instructions=system, input=user, max_output_tokens=max_output_tokens)
+            # Reasoning models (gpt-5*, o*): gastan max_output_tokens en razonar; con "minimal" la respuesta
+            # cabe en presupuestos pequeños. Ejercicio: probar "low", "medium", "high" y medir tokens y latencia.
+            if self.model.startswith(("gpt-5", "o1", "o3", "o4")):
+                params["reasoning"] = {"effort": "minimal"}
+            r = self.client.responses.create(**params)
             return {"texto": r.output_text, "in": r.usage.input_tokens, "out": r.usage.output_tokens,
                     "s": time.perf_counter() - t}
         import torch

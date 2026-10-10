@@ -62,11 +62,15 @@ class LLM:
                 params["instructions"] = system
             if max_output_tokens:
                 params["max_output_tokens"] = max_output_tokens
-            # Los reasoning models ignoran temperature; se envía solo si aplica.
-            if not self.model.startswith(("gpt-5", "o")):
+            if es_reasoning(self.model):
+                # Los reasoning models rechazan temperature y gastan max_output_tokens en razonar:
+                # con esfuerzo mínimo la respuesta cabe en presupuestos pequeños.
+                params["reasoning"] = {"effort": REASONING_EFFORT}
+            else:
                 params["temperature"] = temperature
             params.update(kw)
             resp = self.client.responses.create(**params)
+            avisar_si_incompleta(resp)
             return Respuesta(
                 text=resp.output_text,
                 input_tokens=resp.usage.input_tokens,
@@ -117,7 +121,10 @@ class LLM:
             params = dict(model=self.model, input=user, text_format=schema, max_output_tokens=max_output_tokens)
             if system:
                 params["instructions"] = system
+            if es_reasoning(self.model):
+                params["reasoning"] = {"effort": REASONING_EFFORT}
             r = self.client.responses.parse(**params)
+            avisar_si_incompleta(r)
             return r.output_parsed, Respuesta(r.output_text, r.usage.input_tokens, r.usage.output_tokens,
                                               time.perf_counter() - inicio, self.model, r), 1
         import json, re
@@ -138,6 +145,24 @@ class LLM:
             except (ValidationError, ValueError) as e:
                 prompt = f"{user}\n\nTu respuesta anterior no cumplió el schema: {str(e)[:300]}\nCorrige y responde solo con el JSON."
         return None, ultimo, intentos
+
+
+REASONING_EFFORT = "minimal"   # para gpt-5-mini / gpt-5-nano; subir a "low" o "medium" si una tarea lo pide
+
+
+def es_reasoning(model: str) -> bool:
+    return model.startswith(("gpt-5", "o1", "o3", "o4"))
+
+
+def avisar_si_incompleta(resp) -> None:
+    """Un reasoning model que agota max_output_tokens devuelve status='incomplete' y texto vacío,
+    sin lanzar error. Se avisa en consola para que nadie tome el vacío por una respuesta."""
+    status = getattr(resp, "status", None)
+    if status == "incomplete":
+        det = getattr(resp, "incomplete_details", None)
+        motivo = getattr(det, "reason", None) if det else None
+        print(f"[llm] respuesta incompleta ({motivo}). Si el motivo es max_output_tokens, "
+              f"sube el presupuesto: los tokens de razonamiento también cuentan.")
 
 
 def backend_disponible() -> str:
