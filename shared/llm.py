@@ -65,7 +65,7 @@ class LLM:
             if es_reasoning(self.model):
                 # Los reasoning models rechazan temperature y gastan max_output_tokens en razonar:
                 # con esfuerzo mínimo la respuesta cabe en presupuestos pequeños.
-                params["reasoning"] = {"effort": REASONING_EFFORT}
+                params["reasoning"] = {"effort": REASONING_EFFORT, **({"summary": REASONING_SUMMARY} if REASONING_SUMMARY else {})}
             else:
                 params["temperature"] = temperature
             params.update(kw)
@@ -122,7 +122,7 @@ class LLM:
             if system:
                 params["instructions"] = system
             if es_reasoning(self.model):
-                params["reasoning"] = {"effort": REASONING_EFFORT}
+                params["reasoning"] = {"effort": REASONING_EFFORT, **({"summary": REASONING_SUMMARY} if REASONING_SUMMARY else {})}
             r = self.client.responses.parse(**params)
             avisar_si_incompleta(r)
             return r.output_parsed, Respuesta(r.output_text, r.usage.input_tokens, r.usage.output_tokens,
@@ -147,7 +147,11 @@ class LLM:
         return None, ultimo, intentos
 
 
+# Niveles de effort: "none", "minimal", "low", "medium", "high", "xhigh" (ver
+# https://developers.openai.com/api/docs/guides/reasoning?api-mode=responses). La cadena de razonamiento
+# viaja cifrada; se puede pedir un resumen con reasoning["summary"] = "auto" | "concise" | "detailed".
 REASONING_EFFORT = "minimal"   # para gpt-5-mini / gpt-5-nano; subir a "low" o "medium" si una tarea lo pide
+REASONING_SUMMARY = None       # "auto" para ver el resumen del razonamiento (útil en la semana 14)
 
 
 def es_reasoning(model: str) -> bool:

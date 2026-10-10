@@ -136,7 +136,23 @@ class LLM:
         if self.backend == "openai":
             params = dict(model=self.model, instructions=system, input=user, max_output_tokens=max_output_tokens)
             # Reasoning models (gpt-5*, o*): gastan max_output_tokens en razonar; con "minimal" la respuesta
-            # cabe en presupuestos pequeños. Ejercicio: probar "low", "medium", "high" y medir tokens y latencia.
+            # cabe en presupuestos pequeños. 
+            # Ejercicio: probar: 
+            # "none"    Sin razonamiento adicional. Menor latencia.
+            # "minimal"    Razonamiento mínimo.
+            # "low"    Razonamiento ligero.
+            # "medium"    Razonamiento moderado.
+            # "high"    Razonamiento profundo.
+            # "xhigh"    Razonamiento muy profundo.
+            # Summary: la cadena de razonamiento viaja cifrada (encrypted_content) y no se puede leer; se puede
+            # pedir un resumen generado por el proveedor con reasoning["summary"]:
+            # "auto"    El proveedor elige el nivel de detalle.
+            # "concise"    Resumen breve.
+            # "detailed"    Resumen paso a paso.
+            # Ejemplo: params["reasoning"] = {"effort": "medium", "summary": "auto"}
+            # Ver https://developers.openai.com/api/reference/resources/responses/methods/create#responses-create-reasoning
+            # https://developers.openai.com/api/docs/models/gpt-5-mini (especifico de este modelo)
+            # https://developers.openai.com/api/docs/guides/reasoning?api-mode=responses
             if self.model.startswith(("gpt-5", "o1", "o3", "o4")):
                 params["reasoning"] = {"effort": "minimal"}
             r = self.client.responses.create(**params)
