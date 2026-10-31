@@ -16,6 +16,10 @@ El programa oficial de la asignatura, con unidades, objetivos, evaluación y bib
 * En Jupyter local (por ejemplo, en Cursor o VS Code): exporta `OPENAI_API_KEY` en la terminal antes de abrir el editor, o guárdala en un archivo `.env` que no se versiona. La misma celda la toma del entorno.
 * `shared/` tiene los primers de lectura previa, los datasets del curso y dos helpers (`usage.py` para registrar tokens y costo, `llm.py` como cliente con backend OpenAI o local).
 
+## La aplicación del curso
+
+Desde la semana 8 las demos y las prácticas se hacen sobre `app/`, un chat de soporte de Facturio que corre en tu máquina y muestra el trace, el contexto enviado al modelo, el estado de la aplicación, el razonamiento y el costo de cada turno. Instrucciones en `app/README.md`: instalar, poner la llave en `.env` y `python app.py`.
+
 ## Prácticas
 
 Cada semana tiene una práctica en `week-XX/practice/`: `practice.md` con instrucciones y rúbrica, `report-template.md` para llenar y `practice-starter.ipynb` como punto de partida. Se entregan antes de la siguiente sesión. La rúbrica premia decisiones justificadas con mediciones; el código que corre es condición necesaria.
@@ -36,3 +40,5 @@ Se revisa en este orden: código determinista → LLM → RAG → workflow → a
 | [week-04](week-04/README.md) | Semana 4. Prompt Engineering para aplicaciones | [02-student-experiment](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-04/notebooks/02-student-experiment.ipynb) · [practice-starter](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-04/practice/practice-starter.ipynb) |
 | [week-05](week-05/README.md) | Semana 5. RAG Fundamentals: construir el primer RAG | [02-student-experiment](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-05/notebooks/02-student-experiment.ipynb) · [practice-starter](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-05/practice/practice-starter.ipynb) |
 | [week-06](week-06/README.md) | Semana 6. Retrieval Engineering y construcción del contexto | [02-student-experiment](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-06/notebooks/02-student-experiment.ipynb) · [practice-starter](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-06/practice/practice-starter.ipynb) |
+| [week-07](week-07/README.md) | Semana 7. RAG avanzado: hybrid retrieval, reranking, contexto y evaluación | [02-student-experiment](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-07/notebooks/02-student-experiment.ipynb) · [practice-starter](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-07/practice/practice-starter.ipynb) |
+| [week-08](week-08/README.md) | Semana 8. Tool Calling, Workflows y Context Engineering | [02-student-experiment](https://colab.research.google.com/github/JunBarrs24/itm-maestria-llms/blob/main/week-08/notebooks/02-student-experiment.ipynb) |

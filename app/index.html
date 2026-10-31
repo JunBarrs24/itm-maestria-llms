@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Facturio Soporte</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --navy:#1f2a44; --teal:#0e7c7b; --orange:#d9822b; --gray:#6b7280; --light:#f3f4f6; --text:#111827; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text); background:#fff; }
+  header { background:var(--navy); color:#fff; padding:10px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0 12px 0 0; }
+  header label { font-size:13px; display:flex; gap:6px; align-items:center; }
+  header select, header input[type=checkbox] { font-size:13px; }
+  header .cfg { margin-left:auto; font-size:12px; color:#cfe6e5; }
+  main { display:grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 48px); }
+  #chat { display:flex; flex-direction:column; border-right:1px solid #e5e7eb; }
+  #mensajes { flex:1; overflow:auto; padding:16px; }
+  .msg { max-width:85%; padding:10px 12px; border-radius:10px; margin:6px 0; white-space:pre-wrap; line-height:1.35; }
+  .user { background:#e6f4f3; margin-left:auto; }
+  .bot { background:var(--light); }
+  .meta { font-size:11px; color:var(--gray); margin-top:4px; }
+  #entrada { display:flex; gap:8px; padding:12px; border-top:1px solid #e5e7eb; }
+  #entrada input { flex:1; padding:10px; font-size:14px; border:1px solid #d1d5db; border-radius:8px; }
+  #entrada button { padding:10px 16px; background:var(--teal); color:#fff; border:0; border-radius:8px; cursor:pointer; }
+  #panel { overflow:auto; padding:12px 16px; background:#fafafa; }
+  .tabs { display:flex; gap:6px; margin-bottom:10px; }
+  .tabs button { padding:6px 10px; border:1px solid #d1d5db; background:#fff; border-radius:6px; cursor:pointer; font-size:13px; }
+  .tabs button.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .paso { border-left:4px solid var(--teal); background:#fff; padding:8px 10px; margin:8px 0; border-radius:6px; font-size:13px; }
+  .paso.modelo { border-color:var(--navy); } .paso.tool { border-color:var(--orange); } .paso.aviso { border-color:#b43c3c; }
+  .paso.routing, .paso.contexto { border-color:var(--gray); }
+  .paso b { display:block; margin-bottom:4px; }
+  pre { background:var(--light); padding:8px; border-radius:6px; overflow:auto; font-size:12px; margin:6px 0 0; }
+  .vacio { color:var(--gray); font-size:13px; }
+  .ejemplos { display:flex; flex-wrap:wrap; gap:6px; padding:0 12px 8px; }
+  .ejemplos button { font-size:12px; padding:4px 8px; border:1px solid #d1d5db; background:#fff; border-radius:12px; cursor:pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Facturio Soporte</h1>
+  <label>Contexto
+    <select id="estrategia">
+      <option value="completo">A. historial completo</option>
+      <option value="ventana">B. ventana (6 msgs)</option>
+      <option value="estado" selected>C. estado estructurado</option>
+    </select>
+  </label>
+  <label>Effort
+    <select id="effort"></select>
+  </label>
+  <label>Compresor
+    <select id="compresor"></select>
+  </label>
+  <label><input type="checkbox" id="routing" checked> routing determinista</label>
+  <label><input type="checkbox" id="autorizar"> permitir side effects automáticos</label>
+  <button id="reiniciar" style="font-size:12px">reiniciar sesión</button>
+  <span class="cfg" id="cfg"></span>
+</header>
+<main>
+  <section id="chat">
+    <div id="mensajes"></div>
+    <div class="ejemplos" id="ejemplos"></div>
+    <form id="entrada">
+      <input id="texto" autocomplete="off" placeholder="Escribe como cliente de Facturio…">
+      <button>Enviar</button>
+    </form>
+  </section>
+  <section id="panel">
+    <div class="tabs">
+      <button data-tab="trace" class="on">Trace</button>
+      <button data-tab="contexto">Contexto enviado</button>
+      <button data-tab="estado">Estado de la app</button>
+      <button data-tab="razonamiento">Razonamiento</button>
+      <button data-tab="uso">Uso y costo</button>
+    </div>
+    <div id="contenido"><p class="vacio">Envía un mensaje. Aquí aparece lo que la aplicación hizo con él.</p></div>
+  </section>
+</main>
+<script>
+const sesionId = Math.random().toString(36).slice(2);
+let ultimo = null, tab = "trace";
+const $ = s => document.querySelector(s);
+const EJEMPLOS = [
+  "Soy el usuario u002, ¿qué plan tengo y cuántas facturas llevo este mes?",
+  "Me cobraron dos veces, el cargo es PAY-00012345. Quiero el reembolso.",
+  "No me llega el código de dos factores por SMS, ¿cuánto tiempo es válido?",
+  "¿Cuántos días tengo para pedir un reembolso?",
+  "Mi presupuesto máximo es 500 pesos al mes, ¿me conviene el plan Pro?",
+];
+EJEMPLOS.forEach(t => { const b = document.createElement("button"); b.textContent = t; b.onclick = () => { $("#texto").value = t; }; $("#ejemplos").appendChild(b); });
+
+fetch("/config").then(r => r.json()).then(c => {
+  $("#cfg").textContent = c.modelo;
+  const sel = $("#effort");
+  c.efforts.forEach(e => { const o = document.createElement("option"); o.value = e; o.textContent = e + (e === c.effort ? " (.env)" : ""); if (e === c.effort) o.selected = true; sel.appendChild(o); });
+  const selc = $("#compresor");
+  c.compresores.forEach(e => { const o = document.createElement("option"); o.value = e; o.textContent = e + (e === c.compresor ? " (.env)" : ""); if (e === c.compresor) o.selected = true; selc.appendChild(o); });
+});
+
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function agregar(rol, texto, meta) {
+  const d = document.createElement("div"); d.className = "msg " + rol; d.textContent = texto;
+  if (meta) { const m = document.createElement("div"); m.className = "meta"; m.textContent = meta; d.appendChild(m); }
+  $("#mensajes").appendChild(d); $("#mensajes").scrollTop = 1e9;
+}
+function render() {
+  const c = $("#contenido");
+  if (!ultimo) { c.innerHTML = '<p class="vacio">Envía un mensaje.</p>'; return; }
+  if (ultimo.error) { c.innerHTML = `<div class="paso aviso"><b>Error</b>${esc(ultimo.error)}</div>`; return; }
+  if (tab === "trace") {
+    c.innerHTML = ultimo.trace.map(p => {
+      if (p.tipo === "routing") return `<div class="paso routing"><b>Routing → ${esc(p.ruta)}</b>tools visibles: ${esc(p.tools_visibles.join(", "))} · regla: ${esc(p.regla)}</div>`;
+      if (p.tipo === "contexto") return `<div class="paso contexto"><b>Contexto: ${esc(p.estrategia)}</b>${p.mensajes} mensajes · ~${p.tokens_aprox} tokens</div>`;
+      if (p.tipo === "modelo") return `<div class="paso modelo"><b>Llamada al modelo (vuelta ${p.vuelta})</b>${p.latencia_s}s · in ${p.input_tokens} · out ${p.output_tokens} · razonamiento ${p.reasoning_tokens} · status ${esc(p.status)}${p.pide_tools.length ? " · pide: " + esc(p.pide_tools.join(", ")) : " · responde"}</div>`;
+      if (p.tipo === "tool") return `<div class="paso tool"><b>Tool ${esc(p.nombre)} · ${esc(p.decision)}</b>args: ${esc(JSON.stringify(p.args))}<pre>${esc(JSON.stringify(p.resultado, null, 1))}</pre></div>`;
+      if (p.tipo === "compresion") return `<div class="paso contexto"><b>Compresión (${esc(p.compresor)}) · ${p.mensajes_resumidos} mensajes → resumen</b>${p.compresor === "llm" ? `una llamada más: in ${p.input_tokens} · out ${p.output_tokens} · ${p.latencia_s}s` : "sin llamada al modelo"}<pre>${esc(p.resumen)}</pre></div>`;
+      if (p.tipo === "aviso") return `<div class="paso aviso"><b>Aviso</b>${esc(p.mensaje)}</div>`;
+      return "";
+    }).join("");
+  } else if (tab === "contexto") {
+    c.innerHTML = `<p class="vacio">Lo que el modelo vio en la última llamada (${ultimo.contexto_enviado.length} mensajes), además de las instrucciones y las definiciones de tools.</p>` +
+      ultimo.contexto_enviado.map(m => `<div class="paso ${m.role === "user" ? "contexto" : "modelo"}"><b>${esc(m.role)}</b>${esc(m.content)}</div>`).join("");
+  } else if (tab === "estado") {
+    c.innerHTML = `<p class="vacio">APPLICATION STATE ≠ MODEL CONTEXT: esto lo guarda la aplicación; solo entra al modelo con la estrategia C.</p><pre>${esc(JSON.stringify(ultimo.estado, null, 2))}</pre>` + (ultimo.resumen ? `<b>Resumen:</b><pre>${esc(ultimo.resumen)}</pre>` : "");
+  } else if (tab === "razonamiento") {
+    c.innerHTML = `<p class="vacio">Una entrada por llamada al modelo. La cadena completa viaja cifrada; esto es el resumen que devuelve el proveedor (effort de este turno: ${esc(ultimo.effort)}; se cambia en la cabecera; con minimal o low muchas llamadas no razonan y no traen resumen).</p>` +
+      ultimo.razonamiento.map(v => `<div class="paso modelo"><b>Vuelta ${v.vuelta} · ${v.pide_tools.length ? "pide " + esc(v.pide_tools.join(", ")) : "responde"} · ${v.reasoning_tokens} tokens de razonamiento</b>` +
+        (v.resumen.length ? v.resumen.map(r => `<div>${esc(r)}</div>`).join("") : `<span class="vacio">Esta vuelta no razonó o el proveedor no devolvió resumen.</span>`) + `</div>`).join("");
+  } else {
+    const u = ultimo.uso;
+    c.innerHTML = `<pre>${esc(JSON.stringify(u, null, 2))}</pre><p class="vacio">Costo con precios de ${esc(ultimo.modelo)}. Tokens de razonamiento: parte de los de salida que no se ve.</p>`;
+  }
+}
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { tab = b.dataset.tab; document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b)); render(); });
+
+$("#entrada").onsubmit = async e => {
+  e.preventDefault();
+  const texto = $("#texto").value.trim(); if (!texto) return;
+  $("#texto").value = ""; agregar("user", texto);
+  const body = { sesion_id: sesionId, texto, estrategia: $("#estrategia").value, routing: $("#routing").checked, autorizar_reembolsos: $("#autorizar").checked, effort: $("#effort").value, compresor: $("#compresor").value };
+  const r = await fetch("/chat", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) });
+  ultimo = await r.json();
+  if (ultimo.error) agregar("bot", "Error: " + ultimo.error);
+  else agregar("bot", ultimo.respuesta, `${ultimo.ruta} · effort ${ultimo.effort} · ${ultimo.uso.latencia_s}s · ${ultimo.uso.input_tokens + ultimo.uso.output_tokens} tokens (${ultimo.uso.reasoning_tokens} de razonamiento) · $${ultimo.uso.costo_usd}`);
+  render();
+};
+$("#reiniciar").onclick = async () => { await fetch("/reiniciar?sesion_id=" + sesionId, { method: "POST" }); $("#mensajes").innerHTML = ""; ultimo = null; render(); };
+</script>
+</body>
+</html>
