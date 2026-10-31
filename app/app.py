@@ -205,8 +205,15 @@ def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, a
     instrucciones, permitidas = ESPECIALISTAS[ruta]
     if ruta != "general":
         instrucciones = INSTRUCCIONES_BASE + " " + instrucciones
+    # Primera capa de autorización: lo que el modelo no ve, no lo puede pedir ni prometer.
+    # Con los side effects automáticos apagados, las tools con side_effect salen de la lista.
+    if not autorizar_reembolsos:
+        permitidas = [n for n in permitidas if not ft.TOOLS[n]["side_effect"]]
+        instrucciones += (" En este momento no puedes ejecutar acciones (reembolsos, escalaciones); si el cliente las necesita, "
+                          "explícale que una persona del equipo las atenderá y no ofrezcas ejecutarlas tú.")
     tools = [d for d in ft.tools_para_openai() if d["name"] in permitidas]
-    trace.append({"tipo": "routing", "ruta": ruta, "tools_visibles": permitidas, "regla": "regex sobre el mensaje" if usar_routing else "desactivado"})
+    trace.append({"tipo": "routing", "ruta": ruta, "tools_visibles": permitidas, "regla": "regex sobre el mensaje" if usar_routing else "desactivado",
+                  "side_effects_automaticos": autorizar_reembolsos})
 
     # 2) contexto: la aplicación decide qué ve el modelo
     sesion.historial.append({"role": "user", "content": texto})
@@ -225,7 +232,6 @@ def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, a
         t0 = time.perf_counter()
         resp = client.responses.create(model=MODEL, instructions=instrucciones, input=entrada, tools=tools,
                                        previous_response_id=previo, max_output_tokens=600, store=True, **_reasoning(effort))
-        print(resp)
         dt = time.perf_counter() - t0
         u = resp.usage
         rt = getattr(getattr(u, "output_tokens_details", None), "reasoning_tokens", 0) or 0
@@ -256,6 +262,10 @@ def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, a
                 paso["decision"] = "bloqueada por la aplicación (side effect)"
             else:
                 t1 = time.perf_counter()
+                # El usuario de la sesión lo pone la aplicación, nunca el modelo: la autorización lo usa
+                # para rechazar folios ajenos. En producción vendría del login; aquí, del estado.
+                if c.name == "reembolsar":
+                    args = {**args, "_usuario_sesion": sesion.estado.get("usuario_id")}
                 resultado = ft.ejecutar_tool(c.name, args)
                 paso["decision"] = "ejecutada"
                 paso["latencia_s"] = round(time.perf_counter() - t1, 3)

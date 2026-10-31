@@ -212,11 +212,16 @@ PLAZO_REEMBOLSO_DIAS = 14          # política de Facturio
 MONTO_MAXIMO_SIN_HUMANO = 1000.0   # política de la aplicación: arriba de esto aprueba una persona
 
 
-def autorizar_reembolso(folio: str, monto: float) -> tuple[bool, str]:
-    """Decisión de la APLICACIÓN. No depende de lo que el modelo haya dicho."""
+def autorizar_reembolso(folio: str, monto: float, usuario_sesion: Optional[str] = None) -> tuple[bool, str]:
+    """Decisión de la APLICACIÓN. No depende de lo que el modelo haya dicho.
+    usuario_sesion lo pone la aplicación (login o estado), nunca el modelo ni el texto del cliente."""
     c = CARGOS.get(folio)
     if not c:
         return False, f"no existe el folio {folio}"
+    if usuario_sesion is None:
+        return False, "no hay usuario identificado en la sesión; un reembolso exige saber de quién es el cargo"
+    if c["usuario"] != usuario_sesion:
+        return False, f"el folio {folio} pertenece a otro usuario; no se reembolsa desde esta sesión"
     if folio in REEMBOLSOS:
         return False, f"el folio {folio} ya fue reembolsado (idempotencia)"
     if c["estado"] == "duplicado_detectado":
@@ -235,9 +240,10 @@ def autorizar_reembolso(folio: str, monto: float) -> tuple[bool, str]:
     return True, "autorizado"
 
 
-def reembolsar(folio: str, monto: float, motivo: str) -> dict:
-    """SIDE EFFECT: mueve dinero. Solo se ejecuta si la aplicación autoriza."""
-    ok, razon = autorizar_reembolso(folio, monto)
+def reembolsar(folio: str, monto: float, motivo: str, _usuario_sesion: Optional[str] = None) -> dict:
+    """SIDE EFFECT: mueve dinero. Solo se ejecuta si la aplicación autoriza.
+    _usuario_sesion no forma parte del schema que ve el modelo: lo inyecta la aplicación."""
+    ok, razon = autorizar_reembolso(folio, monto, _usuario_sesion)
     if not ok:
         return {"ejecutado": False, "razon": razon}
     ref = f"REF-{uuid.uuid4().hex[:8].upper()}"
@@ -316,8 +322,12 @@ def ejecutar_tool(nombre: str, args: dict, timeout_s: float = 5.0, reintentos: i
     if nombre not in TOOLS:
         return {"error": f"tool desconocida: {nombre}"} ## OJO AQUI
     t = TOOLS[nombre]
+    # Los campos que empiezan con "_" los inyecta la aplicación (por ejemplo _usuario_sesion); no son
+    # parte del schema que ve el modelo y por eso no se validan como argumentos del modelo.
+    de_la_app = {k: v for k, v in args.items() if k.startswith("_")}
+    del_modelo = {k: v for k, v in args.items() if not k.startswith("_")}
     try:
-        validados = t["args"](**args)
+        validados = t["args"](**del_modelo)
     except ValidationError as e:
         return {"error": "argumentos inválidos", "detalle": str(e)[:300]}
     fn = fn_override or t["fn"]
@@ -325,7 +335,7 @@ def ejecutar_tool(nombre: str, args: dict, timeout_s: float = 5.0, reintentos: i
     for intento in range(1, reintentos + 2):
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
-                fut = ex.submit(fn, **validados.model_dump())
+                fut = ex.submit(fn, **validados.model_dump(), **de_la_app)
                 return fut.result(timeout=timeout_s)
         except concurrent.futures.TimeoutError:
             ultimo_error = f"timeout tras {timeout_s} s (intento {intento})"
