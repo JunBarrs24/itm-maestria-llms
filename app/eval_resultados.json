@@ -1,0 +1,289 @@
+[
+ {
+  "motor": "manual",
+  "tarea": "t1",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1274.3333333333333,
+  "latencia_s": 3.51,
+  "costo_usd": 0.0015,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "manual",
+  "tarea": "t2",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1273.6666666666667,
+  "latencia_s": 3.82,
+  "costo_usd": 0.00144,
+  "tools": [
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "manual",
+  "tarea": "t3",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1560.6666666666667,
+  "latencia_s": 4.97,
+  "costo_usd": 0.00181,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "manual",
+  "tarea": "t4",
+  "exito": 1,
+  "tools_ok": 1,
+  "vueltas": 3,
+  "tokens": 2364.6666666666665,
+  "latencia_s": 7.1,
+  "costo_usd": 0.00298,
+  "tools": [
+   [
+    "consultar_factura",
+    "buscar_documentacion"
+   ],
+   [
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "consultar_factura",
+    "buscar_documentacion"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "manual",
+  "tarea": "t5",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1316.3333333333333,
+  "latencia_s": 3.98,
+  "costo_usd": 0.00173,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "manual",
+  "tarea": "t6",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2.6666666666666665,
+  "tokens": 2153.3333333333335,
+  "latencia_s": 5.48,
+  "costo_usd": 0.00291,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura",
+    "reembolsar",
+    "buscar_documentacion"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "sdk",
+  "tarea": "t1",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1192,
+  "latencia_s": 2.84,
+  "costo_usd": 0.00134,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "sdk",
+  "tarea": "t2",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1203.6666666666667,
+  "latencia_s": 3.69,
+  "costo_usd": 0.00135,
+  "tools": [
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "sdk",
+  "tarea": "t3",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1499.3333333333333,
+  "latencia_s": 4.5,
+  "costo_usd": 0.00183,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "sdk",
+  "tarea": "t4",
+  "exito": 1,
+  "tools_ok": 1,
+  "vueltas": 3.6666666666666665,
+  "tokens": 3249,
+  "latencia_s": 8.26,
+  "costo_usd": 0.00395,
+  "tools": [
+   [
+    "consultar_factura",
+    "buscar_documentacion",
+    "consultar_plan",
+    "reembolsar"
+   ],
+   [
+    "consultar_factura",
+    "buscar_documentacion"
+   ],
+   [
+    "consultar_factura",
+    "buscar_documentacion"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "sdk",
+  "tarea": "t5",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2,
+  "tokens": 1316,
+  "latencia_s": 5.52,
+  "costo_usd": 0.00206,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ },
+ {
+  "motor": "sdk",
+  "tarea": "t6",
+  "exito": 3,
+  "tools_ok": 3,
+  "vueltas": 2.3333333333333335,
+  "tokens": 1838,
+  "latencia_s": 5.07,
+  "costo_usd": 0.00251,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "buscar_documentacion",
+    "consultar_factura"
+   ]
+  ],
+  "n": 3,
+  "errores": []
+ }
+]

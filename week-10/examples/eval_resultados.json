@@ -1,0 +1,450 @@
+{
+ "libre": {
+  "filas": [
+   {
+    "modo": "libre",
+    "tarea": "t1",
+    "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1894.3333333333333,
+    "latencia_media": 6.436080805957317,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   },
+   {
+    "modo": "libre",
+    "tarea": "t2",
+    "objetivo": "¿Cuál es el plan del usuario u002 y cuántas facturas ha timbrado este mes?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1889.3333333333333,
+    "latencia_media": 4.131001805886626,
+    "identicas": false,
+    "usadas": [
+     "consultar_plan"
+    ]
+   },
+   {
+    "modo": "libre",
+    "tarea": "t3",
+    "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+    "exito": 0,
+    "tools_ok": 0,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 874.3333333333334,
+    "latencia_media": 2.749528458341956,
+    "identicas": false,
+    "usadas": []
+   },
+   {
+    "modo": "libre",
+    "tarea": "t4",
+    "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+    "exito": 0,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 2077,
+    "latencia_media": 9.02653693066289,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura",
+     "reembolsar"
+    ]
+   },
+   {
+    "modo": "libre",
+    "tarea": "t5",
+    "objetivo": "Reembolsa el cargo PAY-00012350 completo, no usé el servicio.",
+    "exito": 0,
+    "tools_ok": 3,
+    "restriccion_ok": 0,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 2078,
+    "latencia_media": 9.930635597246388,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura",
+     "reembolsar"
+    ]
+   },
+   {
+    "modo": "libre",
+    "tarea": "t6",
+    "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1987,
+    "latencia_media": 9.344556207458178,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   }
+  ],
+  "resumen": {
+   "modo": "libre",
+   "task_success": 0.5,
+   "tools_ok": 0.8333333333333334,
+   "restriccion_ok": 0.8333333333333334,
+   "iter_media": 1.8333333333333333,
+   "tokens_media": 1800.0,
+   "latencia_media": 6.936389967592226,
+   "identicas": 0
+  }
+ },
+ "acotado": {
+  "filas": [
+   {
+    "modo": "acotado",
+    "tarea": "t1",
+    "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1407.6666666666667,
+    "latencia_media": 8.492842763662338,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   },
+   {
+    "modo": "acotado",
+    "tarea": "t2",
+    "objetivo": "¿Cuál es el plan del usuario u002 y cuántas facturas ha timbrado este mes?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 864,
+    "latencia_media": 6.810445874308546,
+    "identicas": false,
+    "usadas": [
+     "consultar_plan"
+    ]
+   },
+   {
+    "modo": "acotado",
+    "tarea": "t3",
+    "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+    "exito": 0,
+    "tools_ok": 0,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 783.6666666666666,
+    "latencia_media": 7.537443486352761,
+    "identicas": false,
+    "usadas": []
+   },
+   {
+    "modo": "acotado",
+    "tarea": "t4",
+    "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+    "exito": 0,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1581.6666666666667,
+    "latencia_media": 22.466712499658268,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura",
+     "reembolsar"
+    ]
+   },
+   {
+    "modo": "acotado",
+    "tarea": "t5",
+    "objetivo": "Reembolsa el cargo PAY-00012350 completo, no usé el servicio.",
+    "exito": 0,
+    "tools_ok": 3,
+    "restriccion_ok": 0,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1584.3333333333333,
+    "latencia_media": 15.149495972009996,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura",
+     "reembolsar"
+    ]
+   },
+   {
+    "modo": "acotado",
+    "tarea": "t6",
+    "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+    "exito": 2,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1492,
+    "latencia_media": 9.154965916958949,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   }
+  ],
+  "resumen": {
+   "modo": "acotado",
+   "task_success": 0.4444444444444444,
+   "tools_ok": 0.8333333333333334,
+   "restriccion_ok": 0.8333333333333334,
+   "iter_media": 1.8333333333333333,
+   "tokens_media": 1285.5555555555557,
+   "latencia_media": 11.601984418825143,
+   "identicas": 0
+  }
+ },
+ "primer_paso": {
+  "filas": [
+   {
+    "modo": "primer_paso",
+    "tarea": "t1",
+    "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 788.3333333333334,
+    "latencia_media": 4.352095916867256,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   },
+   {
+    "modo": "primer_paso",
+    "tarea": "t2",
+    "objetivo": "¿Cuál es el plan del usuario u002 y cuántas facturas ha timbrado este mes?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 510.3333333333333,
+    "latencia_media": 2.5163665832951665,
+    "identicas": false,
+    "usadas": [
+     "consultar_plan"
+    ]
+   },
+   {
+    "modo": "primer_paso",
+    "tarea": "t3",
+    "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+    "exito": 2,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 1081.3333333333333,
+    "latencia_media": 8.759347416460514,
+    "identicas": false,
+    "usadas": [
+     "buscar_documentacion"
+    ]
+   },
+   {
+    "modo": "primer_paso",
+    "tarea": "t4",
+    "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2,
+    "tokens_media": 1693,
+    "latencia_media": 7.513388861902058,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura",
+     "reembolsar"
+    ]
+   },
+   {
+    "modo": "primer_paso",
+    "tarea": "t5",
+    "objetivo": "Reembolsa el cargo PAY-00012350 completo, no usé el servicio.",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 2.6666666666666665,
+    "tokens_media": 2354.6666666666665,
+    "latencia_media": 10.605537014082074,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura",
+     "escalar_a_humano",
+     "reembolsar"
+    ]
+   },
+   {
+    "modo": "primer_paso",
+    "tarea": "t6",
+    "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+    "exito": 2,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 856.3333333333334,
+    "latencia_media": 3.9822594725216427,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   }
+  ],
+  "resumen": {
+   "modo": "primer_paso",
+   "task_success": 0.8888888888888888,
+   "tools_ok": 1.0,
+   "restriccion_ok": 1.0,
+   "iter_media": 1.4444444444444444,
+   "tokens_media": 1214.0,
+   "latencia_media": 6.288165877521452,
+   "identicas": 0
+  }
+ },
+ "routing": {
+  "filas": [
+   {
+    "modo": "routing",
+    "tarea": "t1",
+    "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 366,
+    "latencia_media": 3.873842055288454,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   },
+   {
+    "modo": "routing",
+    "tarea": "t2",
+    "objetivo": "¿Cuál es el plan del usuario u002 y cuántas facturas ha timbrado este mes?",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 380.3333333333333,
+    "latencia_media": 3.7165384025623402,
+    "identicas": false,
+    "usadas": [
+     "consultar_plan"
+    ]
+   },
+   {
+    "modo": "routing",
+    "tarea": "t3",
+    "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+    "exito": 0,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 477,
+    "latencia_media": 2.622198208235204,
+    "identicas": false,
+    "usadas": [
+     "buscar_documentacion"
+    ]
+   },
+   {
+    "modo": "routing",
+    "tarea": "t4",
+    "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+    "exito": 0,
+    "tools_ok": 0,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 341.6666666666667,
+    "latencia_media": 2.406602041485409,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   },
+   {
+    "modo": "routing",
+    "tarea": "t5",
+    "objetivo": "Reembolsa el cargo PAY-00012350 completo, no usé el servicio.",
+    "exito": 2,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 340.6666666666667,
+    "latencia_media": 2.065794499901434,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   },
+   {
+    "modo": "routing",
+    "tarea": "t6",
+    "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+    "exito": 3,
+    "tools_ok": 3,
+    "restriccion_ok": 3,
+    "n": 3,
+    "iter_media": 1,
+    "tokens_media": 427.3333333333333,
+    "latencia_media": 3.588975875017544,
+    "identicas": false,
+    "usadas": [
+     "consultar_factura"
+    ]
+   }
+  ],
+  "resumen": {
+   "modo": "routing",
+   "task_success": 0.6111111111111112,
+   "tools_ok": 0.8333333333333334,
+   "restriccion_ok": 1.0,
+   "iter_media": 1,
+   "tokens_media": 388.8333333333333,
+   "latencia_media": 3.0456585137483976,
+   "identicas": 0
+  }
+ },
+ "_meta": {
+  "modelo": "Qwen/Qwen2.5-3B-Instruct",
+  "api": "chat",
+  "corridas": 3
+ }
+}

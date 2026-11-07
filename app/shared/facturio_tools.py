@@ -91,11 +91,13 @@ class ArgsEscalar(BaseModel):
 
 
 # ============================================================================ tools
+
 def consultar_factura(folio: str) -> dict:
     """Solo lectura. Devuelve el cargo o un error si no existe."""
     if not re.fullmatch(r"PAY-\d{8}", folio):
         return {"error": "folio inválido: el formato es PAY- seguido de 8 dígitos"}
     c = CARGOS.get(folio)
+
     if not c:
         return {"error": f"no existe el folio {folio}"}
     return {"folio": folio, "usuario": c["usuario"], "monto": c["monto"], "fecha": c["fecha"].isoformat(),
@@ -320,7 +322,7 @@ def ejecutar_tool(nombre: str, args: dict, timeout_s: float = 5.0, reintentos: i
     """Valida los argumentos, ejecuta con timeout y reintenta errores transitorios con backoff.
     Devuelve siempre un dict serializable, con la clave 'error' si algo falló."""
     if nombre not in TOOLS:
-        return {"error": f"tool desconocida: {nombre}"} ## OJO AQUI
+        return {"error": f"tool desconocida: {nombre}. "} ## OJO AQUI
     t = TOOLS[nombre]
     # Los campos que empiezan con "_" los inyecta la aplicación (por ejemplo _usuario_sesion); no son
     # parte del schema que ve el modelo y por eso no se validan como argumentos del modelo.

@@ -10,6 +10,7 @@ Lo que se ve en pantalla es lo que el curso estudia:
   * autorización: `reembolsar` solo se ejecuta si la política de la aplicación lo permite (semana 8);
   * routing: una regla determinista elige el especialista antes de llamar al modelo (semana 8);
   * contexto: tres estrategias para construir lo que el modelo ve en cada turno (semana 9);
+  * motor: el mismo turno corrido por el loop manual o por el Agents SDK, con aprobación humana (semana 10);
   * trace: llamadas, tools, tokens, latencia y resumen de razonamiento (semanas 11 y 15).
 
 Uso:
@@ -29,7 +30,7 @@ from typing import Any, Literal, Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 AQUI = Path(__file__).resolve().parent
@@ -81,6 +82,7 @@ class Sesion:
         self.historial: list[dict] = []          # turnos completos, nunca se envían enteros si la estrategia no lo pide
         self.estado = {"usuario_id": None, "folios": [], "constraints": [], "completed_steps": [], "important_facts": {}}
         self.resumen = ""                        # resumen de lo viejo, para la estrategia C
+        self.pendiente: dict | None = None       # motor SDK: corrida detenida a la espera de una persona (semana 10)
         self.tokens_acumulados = 0
 
     def actualizar_estado(self, texto_usuario: str, resultados_tools: list[dict]):
@@ -192,36 +194,44 @@ def _costo(model: str, tin: int, tout: int) -> float:
 COMPRESORES = ("llm", "determinista")
 
 
-def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, autorizar_reembolsos: bool,
-              max_vueltas: int = 4, effort: str | None = None, compresor: str | None = None) -> dict:
-    effort = effort if effort in EFFORTS else REASONING_EFFORT
-    compresor = compresor if compresor in COMPRESORES else COMPRESOR
-    client = _cliente()
-    trace: list[dict] = []
-    t_inicio = time.perf_counter()
+MOTORES = ("manual", "sdk")
 
+
+def _preparar(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, autorizar_reembolsos: bool, motor: str):
+    """Pasos 1 y 2 del turno, iguales para los dos motores: routing y contexto son de la aplicación."""
+    trace: list[dict] = []
     # 1) routing determinista: decide el especialista antes de gastar una llamada
     ruta = ruta_determinista(texto) if usar_routing else "general"
     instrucciones, permitidas = ESPECIALISTAS[ruta]
     if ruta != "general":
         instrucciones = INSTRUCCIONES_BASE + " " + instrucciones
     # Primera capa de autorización: lo que el modelo no ve, no lo puede pedir ni prometer.
-    # Con los side effects automáticos apagados, las tools con side_effect salen de la lista.
-    if not autorizar_reembolsos:
+    # Motor manual: con los side effects automáticos apagados, las tools con side_effect salen de la lista.
+    # Motor SDK: siguen visibles, pero needs_approval pausa la corrida y una persona decide (otra política válida).
+    if not autorizar_reembolsos and motor == "manual":
         permitidas = [n for n in permitidas if not ft.TOOLS[n]["side_effect"]]
         instrucciones += (" En este momento no puedes ejecutar acciones (reembolsos, escalaciones); si el cliente las necesita, "
                           "explícale que una persona del equipo las atenderá y no ofrezcas ejecutarlas tú.")
-    tools = [d for d in ft.tools_para_openai() if d["name"] in permitidas]
     trace.append({"tipo": "routing", "ruta": ruta, "tools_visibles": permitidas, "regla": "regex sobre el mensaje" if usar_routing else "desactivado",
-                  "side_effects_automaticos": autorizar_reembolsos})
-
-    # 2) contexto: la aplicación decide qué ve el modelo
+                  "side_effects_automaticos": autorizar_reembolsos, "motor": motor})
+    # 2) contexto: la aplicación decide qué ve el modelo (en los dos motores)
     sesion.historial.append({"role": "user", "content": texto})
+    # KEEP sobre el mensaje actual, antes del loop: si el cliente dice "soy u001" en este mismo turno, la
+    # autorización ya tiene el usuario de la sesión (las reglas son deterministas y repetirlas al cerrar no duplica nada).
+    sesion.actualizar_estado(texto, [])
     contexto = sesion.construir_contexto(estrategia)
     tokens_ctx = sum(contar_tokens(m["content"]) for m in contexto)
     trace.append({"tipo": "contexto", "estrategia": estrategia, "mensajes": len(contexto), "tokens_aprox": tokens_ctx})
+    return ruta, instrucciones, permitidas, contexto, trace
 
-    # 3) el ciclo: llamada -> tool calls -> ejecutar -> devolver -> llamada ... hasta que no pida tools
+
+def _motor_manual(sesion: Sesion, instrucciones: str, permitidas: list[str], contexto: list[dict], autorizar_reembolsos: bool,
+                  max_vueltas: int, effort: str) -> dict:
+    """El loop a mano (semana 8): llamada -> tool calls -> ejecutar -> devolver -> llamada ... hasta que no pida tools."""
+    client = _cliente()
+    tools = [d for d in ft.tools_para_openai() if d["name"] in permitidas]
+    trace: list[dict] = []
+    t0_total = time.perf_counter()
     entrada: Any = contexto
     previo = None
     resultados_tools: list[dict] = []
@@ -236,15 +246,14 @@ def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, a
         u = resp.usage
         rt = getattr(getattr(u, "output_tokens_details", None), "reasoning_tokens", 0) or 0
         total_in += u.input_tokens; total_out += u.output_tokens; total_reason += rt
-        resumenes.append({"vuelta": vuelta, "reasoning_tokens": rt, "pide_tools": [c.name for c in (o for o in resp.output if getattr(o, "type", "") == "function_call")],
-                          "resumen": _resumenes_de_razonamiento(resp)})
         llamadas = [o for o in resp.output if getattr(o, "type", "") == "function_call"]
+        resumenes.append({"vuelta": vuelta, "reasoning_tokens": rt, "pide_tools": [c.name for c in llamadas], "resumen": _resumenes_de_razonamiento(resp)})
         trace.append({"tipo": "modelo", "vuelta": vuelta, "latencia_s": round(dt, 2), "input_tokens": u.input_tokens,
                       "output_tokens": u.output_tokens, "reasoning_tokens": rt, "status": resp.status,
                       "pide_tools": [c.name for c in llamadas]})
         if resp.status == "incomplete":
             trace.append({"tipo": "aviso", "mensaje": f"respuesta incompleta: {getattr(resp.incomplete_details, 'reason', None)}"})
-        if not llamadas:
+        if not llamadas:            # stop condition 1: el modelo respondió sin pedir tools
             texto_final = resp.output_text
             break
         previo = resp.id
@@ -255,7 +264,7 @@ def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, a
             # Regla general de la aplicación, en un solo lugar: toda tool declarada con side_effect
             # se bloquea mientras los side effects automáticos estén apagados. Una tool nueva marcada
             # con side_effect=True queda protegida sin tocar este código. La política específica
-            # (plazos, montos, duplicados) vive dentro de cada función, como autorizar_reembolso.
+            # (plazos, montos, duplicados, dueño del folio) vive dentro de cada función, como autorizar_reembolso.
             tiene_side_effect = ft.TOOLS.get(c.name, {}).get("side_effect", True)   # desconocida: se trata como peligrosa
             if tiene_side_effect and not autorizar_reembolsos:
                 resultado = {"ejecutado": False, "razon": f"{c.name} tiene side effect y la aplicación tiene apagados los side effects automáticos; se requiere una persona"}
@@ -274,13 +283,19 @@ def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, a
             resultados_tools.append({"nombre": c.name, "args": args, "resultado": resultado})
             salidas.append({"type": "function_call_output", "call_id": c.call_id, "output": json.dumps(resultado, ensure_ascii=False)})
         entrada = salidas
-    else:
+    else:                           # stop condition 2: límite de vueltas; el código toma el control
         texto_final = texto_final or "No pude completar la solicitud en el número máximo de pasos; una persona la revisará."
         trace.append({"tipo": "aviso", "mensaje": f"límite de {max_vueltas} vueltas alcanzado"})
+    return {"texto_final": texto_final, "trace": trace, "resultados_tools": resultados_tools, "resumenes": resumenes,
+            "total_in": total_in, "total_out": total_out, "total_reason": total_reason,
+            "latencia_s": round(time.perf_counter() - t0_total, 2), "pendiente": None}
 
-    # 4) cerrar el turno: el historial completo lo guarda la aplicación, siempre
-    sesion.historial.append({"role": "assistant", "content": texto_final})
-    sesion.actualizar_estado(texto, resultados_tools)
+
+def _cerrar(sesion: Sesion, texto: str, estrategia: str, effort: str, compresor: str, salida: dict, trace: list[dict]):
+    """Paso 4, igual para los dos motores: historial, estado y compresión son de la aplicación."""
+    total_in, total_out = salida["total_in"], salida["total_out"]
+    sesion.historial.append({"role": "assistant", "content": salida["texto_final"]})
+    sesion.actualizar_estado(texto, salida["resultados_tools"])
     # COMPRESS: cuando el historial supera el umbral, lo anterior a la ventana se resume una vez
     # (y se vuelve a resumir cada UMBRAL_COMPRESION mensajes nuevos). Con COMPRESOR=llm es una llamada más.
     if estrategia == "estado" and len(sesion.historial) >= UMBRAL_COMPRESION and (len(sesion.historial) - UMBRAL_COMPRESION) % UMBRAL_COMPRESION == 0:
@@ -288,22 +303,75 @@ def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, a
         if compresor == "llm":
             sesion.resumen, uso_c = comprimir_con_llm(viejos, effort)
             total_in += uso_c["input_tokens"]; total_out += uso_c["output_tokens"]
-            trace.append({"tipo": "compresion", "compresor": "llm", "mensajes_resumidos": len(viejos), **uso_c,
-                          "resumen": sesion.resumen})
+            trace.append({"tipo": "compresion", "compresor": "llm", "mensajes_resumidos": len(viejos), **uso_c, "resumen": sesion.resumen})
         else:
             sesion.resumen = comprimir_determinista(viejos)
             trace.append({"tipo": "compresion", "compresor": "determinista", "mensajes_resumidos": len(viejos),
                           "input_tokens": 0, "output_tokens": 0, "latencia_s": 0.0, "resumen": sesion.resumen})
-    costo = _costo(MODEL, total_in, total_out)
     sesion.tokens_acumulados += total_in + total_out
+    return total_in, total_out
+
+
+def _respuesta(sesion: Sesion, salida: dict, trace: list[dict], contexto: list[dict], ruta: str, effort: str, compresor: str,
+               motor: str, total_in: int, total_out: int) -> dict:
     return {
-        "respuesta": texto_final, "ruta": ruta, "trace": trace,
+        "respuesta": salida["texto_final"], "ruta": ruta, "trace": trace, "motor": motor,
         "contexto_enviado": contexto, "estado": sesion.estado, "resumen": sesion.resumen,
-        "uso": {"input_tokens": total_in, "output_tokens": total_out, "reasoning_tokens": total_reason,
-                "costo_usd": round(costo, 6), "latencia_s": round(time.perf_counter() - t_inicio, 2),
+        "uso": {"input_tokens": total_in, "output_tokens": total_out, "reasoning_tokens": salida["total_reason"],
+                "costo_usd": round(_costo(MODEL, total_in, total_out), 6), "latencia_s": salida["latencia_s"],
                 "tokens_sesion": sesion.tokens_acumulados},
-        "razonamiento": resumenes, "modelo": MODEL, "effort": effort, "compresor": compresor,
+        "razonamiento": salida["resumenes"], "modelo": MODEL, "effort": effort, "compresor": compresor,
+        "aprobacion_pendiente": salida["pendiente"]["items"] if salida["pendiente"] else None,
     }
+
+
+def responder(sesion: Sesion, texto: str, estrategia: str, usar_routing: bool, autorizar_reembolsos: bool,
+              max_vueltas: int = 6, effort: str | None = None, compresor: str | None = None, motor: str = "manual") -> dict:
+    effort = effort if effort in EFFORTS else REASONING_EFFORT
+    compresor = compresor if compresor in COMPRESORES else COMPRESOR
+    motor = motor if motor in MOTORES else "manual"
+    ruta, instrucciones, permitidas, contexto, trace = _preparar(sesion, texto, estrategia, usar_routing, autorizar_reembolsos, motor)
+    # 3) el loop: a mano, o el Runner del Agents SDK con las mismas tools y el mismo contexto
+    if motor == "sdk":
+        import motor_sdk
+        agente = motor_sdk.construir_agente(instrucciones, permitidas, MODEL, effort, REASONING_SUMMARY)
+        contexto_app = {"usuario_id": sesion.estado.get("usuario_id"), "side_effects_automaticos": autorizar_reembolsos}
+        salida = motor_sdk.correr(agente, contexto, contexto_app)
+        if salida["pendiente"]:
+            # El turno queda abierto: la aplicación guarda el estado del SDK y espera a la persona (POST /aprobar).
+            sesion.pendiente = {"agente": agente, "estado_sdk": salida["pendiente"]["estado"], "items": salida["pendiente"]["items"],
+                                "trace": trace + salida["trace"], "texto": texto, "estrategia": estrategia, "effort": effort,
+                                "compresor": compresor, "contexto": contexto, "ruta": ruta, "contexto_app": contexto_app}
+            return _respuesta(sesion, salida, trace + salida["trace"], contexto, ruta, effort, compresor, motor, salida["total_in"], salida["total_out"])
+    else:
+        salida = _motor_manual(sesion, instrucciones, permitidas, contexto, autorizar_reembolsos, max_vueltas, effort)
+    trace += salida["trace"]
+    # 4) cerrar el turno: el historial completo lo guarda la aplicación, siempre
+    total_in, total_out = _cerrar(sesion, texto, estrategia, effort, compresor, salida, trace)
+    return _respuesta(sesion, salida, trace, contexto, ruta, effort, compresor, motor, total_in, total_out)
+
+
+def decidir_aprobacion(sesion: Sesion, aprobar: bool) -> dict:
+    """Human-in-the-loop: una persona decide y el SDK reanuda desde el estado guardado."""
+    import motor_sdk
+    p = sesion.pendiente
+    if not p:
+        return {"error": "no hay ninguna aprobación pendiente en esta sesión (si acabas de decidir, la decisión ya se está procesando)"}
+    sesion.pendiente = None
+    salida = motor_sdk.reanudar(p["agente"], {"estado": p["estado_sdk"], "items": p["items"]}, aprobar, p["contexto_app"], [])
+    trace = p["trace"] + salida["trace"]
+    # el turno completo (antes y después de la pausa) se numera y se cobra junto
+    for i, e in enumerate(e for e in trace if e["tipo"] == "modelo"):
+        e["vuelta"] = i + 1
+    salida["total_in"] = sum(e["input_tokens"] for e in trace if e["tipo"] == "modelo")
+    salida["total_out"] = sum(e["output_tokens"] for e in trace if e["tipo"] == "modelo")
+    salida["total_reason"] = sum(e["reasoning_tokens"] for e in trace if e["tipo"] == "modelo")
+    salida["resumenes"] = [{"vuelta": e["vuelta"], "reasoning_tokens": e["reasoning_tokens"], "pide_tools": e["pide_tools"], "resumen": e.get("resumen_razonamiento", [])} for e in trace if e["tipo"] == "modelo"]
+    if salida["pendiente"]:   # el modelo pidió otra acción con side effect: vuelve a esperar
+        sesion.pendiente = {**p, "estado_sdk": salida["pendiente"]["estado"], "items": salida["pendiente"]["items"], "trace": trace}
+        return _respuesta(sesion, salida, trace, p["contexto"], p["ruta"], p["effort"], p["compresor"], "sdk", salida["total_in"], salida["total_out"])
+    total_in, total_out = _cerrar(sesion, p["texto"], p["estrategia"], p["effort"], p["compresor"], salida, trace)
+    return _respuesta(sesion, salida, trace, p["contexto"], p["ruta"], p["effort"], p["compresor"], "sdk", total_in, total_out)
 
 
 # ---------------------------------------------------------------- HTTP
@@ -318,6 +386,7 @@ class Mensaje(BaseModel):
     autorizar_reembolsos: bool = False   # permitir side effects automáticos (nombre histórico)
     effort: Optional[str] = None     # none | minimal | low | medium | high | xhigh; None usa REASONING_EFFORT
     compresor: Optional[str] = None  # llm | determinista; None usa COMPRESOR
+    motor: Literal["manual", "sdk"] = "manual"   # quién corre el loop: app.py o el Agents SDK (semana 10)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -328,7 +397,7 @@ def index():
 @app.get("/config")
 def config():
     return {"modelo": MODEL, "effort": REASONING_EFFORT, "efforts": list(EFFORTS), "summary": REASONING_SUMMARY,
-            "compresor": COMPRESOR, "compresores": list(COMPRESORES), "umbral_compresion": UMBRAL_COMPRESION, "politica_contexto": POLITICA_CONTEXTO,
+            "compresor": COMPRESOR, "compresores": list(COMPRESORES), "motores": list(MOTORES), "umbral_compresion": UMBRAL_COMPRESION, "politica_contexto": POLITICA_CONTEXTO,
             "tools": [{"nombre": n, "side_effect": t["side_effect"], "descripcion": t["descripcion"]} for n, t in ft.TOOLS.items()]}
 
 
@@ -336,8 +405,56 @@ def config():
 def chat(m: Mensaje):
     sesion = SESIONES.setdefault(m.sesion_id, Sesion())
     try:
-        return responder(sesion, m.texto, m.estrategia, m.routing, m.autorizar_reembolsos, effort=m.effort, compresor=m.compresor)
+        return responder(sesion, m.texto, m.estrategia, m.routing, m.autorizar_reembolsos, effort=m.effort, compresor=m.compresor, motor=m.motor)
     except Exception as e:                      # el error llega al panel, nunca se oculta
+        return JSONResponse(status_code=500, content={"error": f"{type(e).__name__}: {e}"})
+
+
+@app.post("/chat/stream")
+async def chat_stream(m: Mensaje):
+    """El mismo turno con el motor SDK, pero como Server-Sent Events: un evento por delta de texto, por tool
+    pedida y por tool devuelta, y al final el mismo JSON que devuelve POST /chat. Es el contrato que usaría
+    una interfaz que "escribe" la respuesta conforme llega; el estado, el trace y la pausa son los mismos."""
+    import motor_sdk
+    sesion = SESIONES.setdefault(m.sesion_id, Sesion())
+    effort = m.effort if m.effort in EFFORTS else REASONING_EFFORT
+    compresor = m.compresor if m.compresor in COMPRESORES else COMPRESOR
+    ruta, instrucciones, permitidas, contexto, trace = _preparar(sesion, m.texto, m.estrategia, m.routing, m.autorizar_reembolsos, "sdk")
+    agente = motor_sdk.construir_agente(instrucciones, permitidas, MODEL, effort, REASONING_SUMMARY)
+    contexto_app = {"usuario_id": sesion.estado.get("usuario_id"), "side_effects_automaticos": m.autorizar_reembolsos}
+
+    async def eventos():
+        def sse(d): return f"data: {json.dumps(d, ensure_ascii=False)}\n\n"
+        try:
+            async for ev in motor_sdk.correr_stream(agente, contexto, contexto_app):
+                if ev["tipo"] != "final":
+                    yield sse(ev)
+                    continue
+                salida = ev["paquete"]
+                if salida["pendiente"]:
+                    sesion.pendiente = {"agente": agente, "estado_sdk": salida["pendiente"]["estado"], "items": salida["pendiente"]["items"],
+                                        "trace": trace + salida["trace"], "texto": m.texto, "estrategia": m.estrategia, "effort": effort,
+                                        "compresor": compresor, "contexto": contexto, "ruta": ruta, "contexto_app": contexto_app}
+                    yield sse({"tipo": "final", **_respuesta(sesion, salida, trace + salida["trace"], contexto, ruta, effort, compresor, "sdk", salida["total_in"], salida["total_out"])})
+                    return
+                tr = trace + salida["trace"]
+                total_in, total_out = _cerrar(sesion, m.texto, m.estrategia, effort, compresor, salida, tr)
+                yield sse({"tipo": "final", **_respuesta(sesion, salida, tr, contexto, ruta, effort, compresor, "sdk", total_in, total_out)})
+        except Exception as e:
+            yield sse({"tipo": "final", "error": f"{type(e).__name__}: {e}"})
+
+    return StreamingResponse(eventos(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.post("/aprobar")
+def aprobar(sesion_id: str, decision: bool):
+    """La persona aprueba o rechaza la acción pausada por el motor SDK; la corrida se reanuda desde el estado."""
+    sesion = SESIONES.get(sesion_id)
+    if not sesion:
+        return JSONResponse(status_code=404, content={"error": "sesión desconocida"})
+    try:
+        return decidir_aprobacion(sesion, decision)
+    except Exception as e:
         return JSONResponse(status_code=500, content={"error": f"{type(e).__name__}: {e}"})
 
 

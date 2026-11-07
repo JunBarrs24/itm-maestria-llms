@@ -8,3 +8,4 @@ python-dotenv
 # Estas versiones mínimas lo evitan; no se usan si el entorno no las necesita.
 brotli>=1.2.0
 zstandard>=0.23.0
+openai-agents>=0.22
