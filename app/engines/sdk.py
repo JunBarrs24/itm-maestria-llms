@@ -16,7 +16,7 @@ import threading
 import time
 from typing import Any
 
-from agents import Agent, InputGuardrailTripwireTriggered, MaxTurnsExceeded, OutputGuardrailTripwireTriggered, Runner, trace
+from agents import Agent, InputGuardrailTripwireTriggered, MaxTurnsExceeded, ModelBehaviorError, OutputGuardrailTripwireTriggered, Runner, trace
 from agents.tracing import gen_trace_id
 
 import config
@@ -81,6 +81,10 @@ def _por_excepcion(e: BaseException, trace_id: str, t0: float, previo: list[dict
     if isinstance(e, MaxTurnsExceeded):
         entradas.append({"tipo": "aviso", "mensaje": f"límite de {config.MAX_TURNS} turnos alcanzado (MaxTurnsExceeded del SDK)"})
         return _paquete(entradas, t0, "No pude completar la solicitud en el número máximo de pasos; una persona la revisará.")
+    if isinstance(e, ModelBehaviorError) and "max_output_tokens" in str(e):
+        entradas.append({"tipo": "aviso", "mensaje": f"respuesta incompleta: el modelo agotó MAX_OUTPUT_TOKENS={config.MAX_OUTPUT_TOKENS} entre razonamiento y texto "
+                                                     "(sube MAX_OUTPUT_TOKENS en .env o baja el effort)"})
+        return _paquete(entradas, t0, "Me quedé sin espacio para responder en este intento; vuelve a preguntar o pide algo más acotado.")
     raise e
 
 
@@ -92,7 +96,7 @@ def correr(agente: Agent, entrada: Any, contexto_app: dict, previo: list[dict] |
             return await Runner.run(agente, entrada, context=contexto_app, max_turns=config.MAX_TURNS)
     try:
         return _empaquetar(_en_el_loop(corrida()), tid, t0, previo)
-    except (InputGuardrailTripwireTriggered, OutputGuardrailTripwireTriggered, MaxTurnsExceeded) as e:
+    except (InputGuardrailTripwireTriggered, OutputGuardrailTripwireTriggered, MaxTurnsExceeded, ModelBehaviorError) as e:
         return _por_excepcion(e, tid, t0, previo)
 
 
@@ -134,7 +138,7 @@ async def correr_stream(agente: Agent, entrada: Any, contexto_app: dict):
                     elif ev.type == "agent_updated_stream_event":
                         cola.put({"tipo": "item", "evento": "agente", "nombre": ev.new_agent.name, "mensaje": f"Te atiende {ev.new_agent.name}…"})
             cola.put({"tipo": "final", "paquete": _empaquetar(resultado, tid, t0)})
-        except (InputGuardrailTripwireTriggered, OutputGuardrailTripwireTriggered, MaxTurnsExceeded) as e:
+        except (InputGuardrailTripwireTriggered, OutputGuardrailTripwireTriggered, MaxTurnsExceeded, ModelBehaviorError) as e:
             cola.put({"tipo": "final", "paquete": _por_excepcion(e, tid, t0, None)})
         except BaseException as e:
             cola.put(e)

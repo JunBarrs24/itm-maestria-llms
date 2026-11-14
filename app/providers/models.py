@@ -44,7 +44,9 @@ def ajustes(proveedor: str, effort: str, summary: str, con_hosted: bool = False)
     """El razonamiento configurable solo existe en los modelos gpt-5 vía Responses API."""
     p = PROVEEDORES.get(proveedor, PROVEEDORES["openai"])
     razona = p["base_url"] is None and p["modelo"].startswith("gpt-5")
-    return ModelSettings(max_tokens=600, reasoning=Reasoning(effort=effort_efectivo(effort, con_hosted), summary=summary or None) if razona else None)
+    # max_tokens cubre razonamiento más texto: con effort low o más, 600 se agotaban antes de responder
+    # (status=incomplete, reason=max_output_tokens) y el SDK lo lanza como ModelBehaviorError.
+    return ModelSettings(max_tokens=config.MAX_OUTPUT_TOKENS, reasoning=Reasoning(effort=effort_efectivo(effort, con_hosted), summary=summary or None) if razona else None)
 
 
 def nombre_modelo(proveedor: str) -> str:

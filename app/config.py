@@ -20,6 +20,7 @@ COMPRESOR = os.environ.get("COMPRESOR", "llm")                     # determinist
 UMBRAL_COMPRESION = int(os.environ.get("UMBRAL_COMPRESION", "8"))  # mensajes en el historial a partir de los cuales se comprime
 PORT = int(os.environ.get("PORT", "8011"))
 MAX_TURNS = int(os.environ.get("MAX_TURNS", "6"))                  # stop condition por límite (semana 10)
+MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "2000"))  # por llamada, razonamiento incluido
 
 EFFORTS = ("none", "minimal", "low", "medium", "high", "xhigh")
 COMPRESORES = ("llm", "determinista")
