@@ -1,67 +1,71 @@
 # Facturio Soporte: la aplicación del curso
 
-Un chat de soporte sobre el caso del curso (Facturio) que corre en tu máquina y muestra, al lado de cada respuesta, lo que la aplicación hizo con el mensaje: a qué especialista lo enrutó, qué contexto envió al modelo, qué herramientas pidió el modelo, cuáles ejecutó la aplicación y cuáles bloqueó, cuántos tokens costó y qué razonó el modelo.
-
-A partir de la sesión de tool calling, las demos y las prácticas se hacen aquí en lugar de en notebooks.
+La mesa de soporte de Facturio como aplicación que corre en tu máquina: un chat, y al lado todo lo que la aplicación hizo con cada mensaje (trace, contexto enviado, estado, razonamiento, costo). Cada carpeta corresponde a un concepto del curso y tiene su propio README.
 
 ## Arrancar
 
 ```
-cd app
 pip install -r requirements.txt
-cp .env.example .env        # pon tu llave individual en OPENAI_API_KEY
-python app.py
+cp .env.example .env        # tu llave individual de OpenAI
+python app.py               # http://localhost:8011  (PORT=8013 python app.py si el puerto está ocupado)
+pytest tests/               # pruebas sin modelo, en segundos
+python -m evals.harness --disenos routing,modes --corridas 3 --juez   # evaluación medida, unos centavos
 ```
 
-Abre `http://localhost:8011`. Si ese puerto está ocupado: `PORT=8011 python app.py`.
+## Mapa de carpetas
 
-Conviene instalar en un entorno virtual propio de la app, con un Python 3.10 o superior que no sea el de conda:
+| Carpeta | Qué es | Semana |
+| --- | --- | --- |
+| `data/` | Usuarios, cargos, tickets y el corpus de documentación con embeddings. | 5, 8 |
+| `policies/` | Reglas de negocio en código (`autorizar_reembolso`). Tercera capa de autorización. | 8 |
+| `tools/` | Una tool por archivo. Firma y docstring son el schema; `@progreso` y `@side_effect` las completan; el registro las descubre. | 8, 10, 12 |
+| `context/` | `Sesion`: lo que la aplicación guarda y lo que decide enviar (estrategias A / B / C, Keep / Compress / Drop). | 8 |
+| `guardrails/` | Validaciones deterministas de entrada (antes del modelo) y de salida (sobre la respuesta). | 10, 12 |
+| `modes/` | Un agente, varios modos: instrucciones (`.md`) más tools visibles por modo; el routing por regex. | 8, 12 |
+| `skills/` | Procedimientos en `SKILL.md` que el agente carga cuando hacen falta. | 12 |
+| `agents_app/` | Quién atiende: un agente con modo fijo (routing), un agente que cambia de modo (modes), triage con handoffs. | 12 |
+| `engines/` | El loop (Agents SDK), la pausa y reanudación, el streaming, el trace y el turno completo. | 10 |
+| `providers/` | Con qué API se habla: OpenAI, o un endpoint compatible de Anthropic o Gemini. | 12 |
+| `evals/` | Gold set, harness de N corridas por diseño, juez LLM, resultados. | 10, 12 |
+| `tests/` | Pruebas sin modelo: políticas, guardrails, registro de tools. | 12 |
+| `web/` | La página (`index.html`), sin framework. | 8 |
+| `main.py`, `config.py`, `app.py` | FastAPI y endpoints; configuración desde `.env`; punto de entrada. | |
 
-```
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python app.py
-```
-
-## Si algo falla al arrancar
-
-* `TypeError: Decompressor.decompress() got an unexpected keyword argument 'output_buffer_limit'`: el entorno trae `urllib3` 2.7 con una librería de descompresión vieja (`Brotli` anterior a 1.2 o `zstandard` anterior a 0.23). Pasa en entornos de conda o con paquetes previos. Solución: `pip install -U brotli zstandard`, o instalar en un entorno virtual limpio como arriba. `requirements.txt` ya fija esas versiones mínimas.
-* `ERROR: No matching distribution found for torch` o conflictos con `sentence-transformers`: estás usando un `requirements.txt` viejo o un Python sin ruedas de torch. La app no necesita torch; actualiza el repositorio y reinstala.
-* `address already in use`: otro proceso usa el puerto. Usa `PORT=8011 python app.py`.
+Flujo de un turno: `main.py` recibe el mensaje → `engines/turno.py` elige el diseño (`agents_app/`), arma el contexto (`context/`) y corre el loop (`engines/sdk.py`) → el agente usa tools (`tools/`) que leen `data/` y pasan por `policies/` → los guardrails validan entrada y salida → el trace (`engines/tracing.py`) vuelve al panel.
 
 ## Qué hay en pantalla
 
-| Panel | Qué muestra | Semana |
-| --- | --- | --- |
-| Chat | La conversación, con ruta, latencia, tokens y costo por turno. | |
-| Trace | Routing, contexto, cada llamada al modelo, cada tool pedida con sus argumentos y la decisión de la aplicación (ejecutada, bloqueada o pausada a la espera de una persona), el resultado, guardrails, avisos. Con el motor SDK, la tarjeta de aprobación aparece aquí. | 8, 10, 15 |
-| Contexto enviado | La lista exacta de mensajes que el modelo vio en la última llamada. Cambia con la estrategia elegida en la cabecera. | 9 |
-| Estado de la app | El estado estructurado que la aplicación guarda (usuario, folios, restricciones, pasos, hechos). Solo entra al modelo con la estrategia C. | 9 |
-| Razonamiento | Una entrada por llamada al modelo del turno (la que pide la tool y la que responde), con sus tokens de razonamiento y el resumen que devuelve el proveedor. Con `minimal` o `low` muchas llamadas no razonan y la entrada lo dice; con `medium` o `high` casi siempre hay resumen. | 5, 14 |
-| Uso y costo | Tokens de entrada, salida y razonamiento, costo estimado y acumulado de la sesión. | 4, 15 |
+| Panel | Qué muestra |
+| --- | --- |
+| Chat | La conversación, con diseño, modo, proveedor, latencia, tokens y costo por turno. Con streaming, el texto llega por deltas y el pie muestra el progreso de cada tool. |
+| Trace | Diseño y modo, contexto, guardrails, cada llamada al modelo, cada tool con su decisión (ejecutada o pausada), handoffs, cambios de modo, skills cargados, compresión, avisos. La tarjeta de aprobación aparece aquí. |
+| Contexto enviado | Los mensajes que el modelo vio al empezar el turno. Cambia con la estrategia. |
+| Estado de la app | El estado estructurado (usuario, modo, folios, restricciones, pasos, hechos) y el resumen. |
+| Razonamiento | Una entrada por llamada al modelo, con tokens de razonamiento y el resumen del proveedor si lo devolvió. |
+| Uso y costo | Tokens de entrada, salida y razonamiento, costo estimado, acumulado de la sesión. |
 
-Controles de la cabecera:
+## Controles de la cabecera
 
-* **Motor** (semana 10): quién corre el loop del turno. `manual (app.py)` es el `for` de `_motor_manual`: una llamada, las tools que pida, ejecutar, devolver, repetir hasta la respuesta final o `max_vueltas`. `Agents SDK` entrega las mismas instrucciones, las mismas tools y el mismo contexto a `Runner.run` (`motor_sdk.py`) y traduce sus spans al mismo trace. Routing, contexto, estado y política de negocio no cambian con el motor.
-* **Streaming (SSE)** (semana 10, solo con el motor SDK): el mismo turno por `POST /chat/stream` como Server-Sent Events. `Runner.run_streamed` emite un evento por delta de texto, por tool pedida y por tool devuelta; la burbuja se escribe conforme llega y al final llega el mismo JSON que `POST /chat`, así que los paneles se pintan igual. Sirve para ver los dos contratos (respuesta completa o flujo de eventos) con el mismo trace y la misma pausa de aprobación.
-* **Contexto**: A historial completo, B ventana de seis mensajes, C estado estructurado más ventana corta. Es el experimento A/B/C de la semana 9: fija una restricción en el turno 2, conversa diez turnos y pregunta algo que dependa de ella.
-* **Routing determinista**: una expresión regular elige el especialista (facturación, acceso, técnico) y acota las tools visibles antes de llamar al modelo. Desactívalo para ver al agente general con las cinco tools.
-* **Effort**: el nivel de razonamiento de la llamada (none a xhigh), por turno y sin reiniciar. El de `.env` es el valor inicial. Sirve para el barrido: el mismo mensaje con cada nivel, comparando tokens de razonamiento, latencia y si la tool elegida y la respuesta cambian.
-* **Compresor**: cómo se resume lo que sale de la ventana en la estrategia C, por turno: `llm` (una llamada más, conserva cifras si se le pide) o `determinista` (recorte, gratis). El de `.env` es el valor inicial.
-* **Permitir side effects automáticos**: con la casilla apagada, las tools declaradas con `side_effect=True` en el catálogo (`reembolsar`, `escalar_a_humano`, y cualquier tool nueva que marques así) no se le muestran al modelo, para que no las prometa, y si algo las pidiera el dispatcher las bloquearía. Con la casilla encendida, cada tool aplica su propia política: `reembolsar` pasa por `autorizar_reembolso` (dueño del folio según el usuario de la sesión, plazo, montos, duplicados, límite que exige persona). Son tres capas: visibilidad, bloqueo por marca y política de negocio. El usuario de la sesión lo inyecta la aplicación en los argumentos (campo `_usuario_sesion`, fuera del schema que ve el modelo). Con el motor SDK la casilla apagada hace otra cosa: las tools con side effect siguen visibles, pero están marcadas con `needs_approval`, así que el SDK detiene la corrida antes de ejecutarlas y la app muestra una tarjeta de aprobación en el panel Trace. Aprobar o rechazar llama a `POST /aprobar`, que reanuda desde el `RunState` guardado en la sesión. La política de negocio dentro de la tool se aplica igual después de aprobar.
-
-Evaluación de los dos motores (semana 10): `python eval_motores.py --corridas 3` corre seis tareas de soporte con cada motor y produce `eval_resultados.json` con task success, tools esperadas, vueltas, tokens, latencia y costo. Cuesta unos centavos.
-
-## Cómo está hecha
-
-* `app.py`: FastAPI. `POST /chat` ejecuta el ciclo de tool calling de la semana 8 sobre la Responses API: llamada al modelo, tool calls, ejecución a través del dispatcher compartido, `function_call_output`, siguiente llamada, hasta que el modelo responde o se alcanza el límite de vueltas. La clase `Sesion` separa el estado de la aplicación del contexto del modelo (semana 9).
-* `index.html`: una página sin frameworks. Envía el mensaje y pinta la respuesta del backend en los paneles.
-* `shared/facturio_tools.py`: las tools de Facturio, sus schemas, el dispatcher con validación, timeout y retry, y la política de autorización. Es el mismo archivo que usan los notebooks, con una diferencia: aquí `buscar_documentacion` calcula los embeddings con la API de OpenAI (`text-embedding-3-small`), así que la app no necesita torch ni modelos locales. La primera búsqueda indexa el corpus (unos segundos y menos de un centavo).
-
-Variables en `.env`: `OPENAI_MODEL` (gpt-5-mini por defecto), `REASONING_EFFORT` (none a xhigh; minimal por defecto), `REASONING_SUMMARY` (auto, concise, detailed o vacío), `COMPRESOR` (`llm` o `determinista`: cómo se resume lo que sale de la ventana en la estrategia C), `UMBRAL_COMPRESION` (cada cuántos mensajes se comprime), `PORT`.
-
-**Keep / Compress / Drop en el código.** `Sesion.actualizar_estado` es Keep (identificadores, restricciones y hechos, textuales en el estado); `comprimir_con_llm` y `comprimir_determinista` son Compress (lo anterior a la ventana se resume, con o sin modelo); `Sesion.construir_contexto` con la estrategia C es Drop (solo entran estado, resumen y los últimos cuatro mensajes; el resto se guarda y no se envía). La política está en `POLITICA_CONTEXTO` y se ve en `/config`. Cuando el compresor es el LLM, el trace muestra la llamada de compresión con sus tokens: comprimir también cuesta.
+* **Diseño**: quién elige el especialista. `routing` (el código, con regex), `modes` (el modelo, con `cambiar_modo`), `handoffs` (un agente de triage entrega a un especialista con todo el historial), `handoffs, paquete mínimo` (igual, pero el especialista recibe solo el estado y el último mensaje). Mismas tools, mismos guardrails, mismo trace.
+* **Proveedor**: OpenAI (Responses API, razonamiento configurable) o un endpoint compatible de Anthropic o Gemini si hay llave en `.env`.
+* **Contexto**: A historial completo, B ventana, C estado estructurado más resumen más ventana corta.
+* **Effort** y **Compresor**: razonamiento por turno y cómo se resume lo que sale de la ventana.
+* **Side effects automáticos**: apagado, toda tool con side effect se detiene (`needs_approval`) y una persona aprueba o rechaza en la tarjeta del panel; la corrida se reanuda desde el `RunState`. Encendido, la política de negocio decide sola.
+* **Streaming (SSE)**: la misma petición por `POST /chat/stream`; eventos conforme ocurren y, al final, el mismo JSON que `POST /chat`.
 
 ## Para extenderla (prácticas)
 
-Las prácticas piden cambios concretos aquí: una tool nueva con schema, side effect y regla de autorización en `shared/facturio_tools.py` (se vuelve visible sola en el trace); una estrategia de contexto nueva en `Sesion.construir_contexto`; un patrón de workflow en `responder`. Cada cambio se evalúa con lo que el trace muestra.
+* Una tool nueva: un archivo en `tools/` con el patrón de `reembolsar.py`; aparece sola.
+* Internet: el modo `web` tiene dos tools. `web_search` es la búsqueda hospedada de OpenAI (`WebSearchTool`): el modelo decide la consulta, OpenAI busca y lee, y devuelve texto con citas; no corre nada en tu máquina y se cobra por llamada además de los tokens; exige effort `low` o más (la app lo sube sola y lo anota en el trace). `leer_pagina` es nuestra: descarga una URL y devuelve el texto, con un sandbox de cuatro reglas en código (solo http(s), sin hosts privados ni localhost, tiempo y tamaño máximos, recorte a 4,000 caracteres). Juntas cubren "busca y analiza páginas" sin más infraestructura. Si cambia el mundo, `@side_effect`. Agrégala a los modos que la necesiten en `modes/modes.py`.
+* Una regla de negocio: `policies/`, con su prueba en `tests/`.
+* Un guardrail: `guardrails/input.py` o `output.py`, como función pura más el decorador, con un caso que dispara y uno que no en `tests/`.
+* Un skill: una carpeta en `skills/` con `SKILL.md`.
+* Un modo: un `.md` en `modes/` y su entrada en `MODOS`.
+* Una tarea de evaluación: `evals/gold.py`.
+
+## Si algo falla al arrancar
+
+* `ModuleNotFoundError: agents`: falta `pip install -r requirements.txt` (agrega `openai-agents`).
+* `Decompressor.decompress() got an unexpected keyword argument 'output_buffer_limit'`: `pip install -U brotli zstandard`.
+* Puerto ocupado: `PORT=8013 python app.py`.
+* `Event loop is closed`: no debería ocurrir; el SDK corre en un loop propio (`engines/sdk.py`). Si aparece, reinicia el servidor y reporta el trace.

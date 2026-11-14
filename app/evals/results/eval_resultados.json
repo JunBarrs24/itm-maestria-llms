@@ -1,0 +1,1586 @@
+[
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t1",
+  "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 2,
+  "tokens": 2500,
+  "latencia_s": 3.15,
+  "costo_usd": 0.00239,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "El cargo PAY-00012345 a nombre de u001 fue de $599.00 MXN, cobrado el 2026-08-28. Concepto: \"Básico mensual\". Estado: cobrado. Han pasado 7 días desde el cargo.",
+   "El cargo PAY-00012345 para el usuario u001 fue de $599.00, cobrado el 2026-08-28. Concepto: \"Básico mensual\". Estado: cobrado. Han pasado 7 días desde el cargo. ¿Quieres que solicite un reembolso?",
+   "El cargo PAY-00012345 fue cobrado a la cuenta u001 por 599.00 MXN el 2026-08-28. Concepto: \"Básico mensual\". Estado: cobrado. Han pasado 7 días desde el cargo."
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa, breve y basada en los datos devueltos por las herramientas sin prometer acciones adicionales.",
+   "Respuesta correcta, completa y breve; resume monto, fecha, concepto y estado sin prometer acciones no confirmadas.",
+   "Respuesta correcta, completa, breve y se limita a los datos proporcionados por la herramienta sin promesas adicionales."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t2",
+  "objetivo": "¿Cuál es mi plan y cuántas facturas he timbrado este mes?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 2,
+  "tokens": 2482.3333333333335,
+  "latencia_s": 2.88,
+  "costo_usd": 0.00229,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Tienes el plan Pro. Este mes has timbrado 812 facturas (límite mensual del plan: 2,000). ¿Quieres que revise recomendaciones de plan o cualquier ajuste de uso?",
+   "Tienes el plan Pro. Límites relevantes: hasta 2,000 facturas/mes. Este mes has timbrado 812 facturas. ¿Quieres que revise si te conviene cambiar de plan o ver detalles de precios?",
+   "Tu plan es Pro. Este mes has timbrado 812 facturas de un límite de 2000. ¿Quieres que revise opciones si te acercas al límite o cambie el plan?"
+  ],
+  "razones_juez": [
+   "Correcta, completa, breve y sin promesas; refleja fielmente los datos devueltos por la herramienta.",
+   "Correcta, completa, breve y sin promesas: indica el plan, el límite y el uso mensual, y ofrece una opción adicional sin afirmar acciones no confirmadas.",
+   "Correcta, completa y breve; refleja fielmente los datos (plan Pro, 812/2000) y ofrece ayuda adicional sin prometer acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t3",
+  "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 2,
+  "tokens": 2715.3333333333335,
+  "latencia_s": 4.14,
+  "costo_usd": 0.00249,
+  "juez": 3,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Puedes solicitar un reembolso dentro de los 14 días naturales posteriores al cargo. Si quieres, te explico cómo pedirlo desde la app o lo gestiono por ti si me das el folio del cargo.",
+   "Tienes 14 días naturales desde la fecha del cargo para solicitar un reembolso. Si quieres, puedo indicarte cómo solicitarlo desde la app o iniciar la solicitud si me das un folio de cargo.",
+   "Puedes solicitar reembolso dentro de los 14 días naturales desde la fecha del cargo. (Si quieres, te indico cómo pedirlo desde Configuración → Pagos.)"
+  ],
+  "razones_juez": [
+   "Contiene una promesa que la herramienta no confirmó ('lo gestiono por ti si me das el folio del cargo'), ya que la documentación indica cómo solicitarlo desde la app pero no autoriza al asistente a ge",
+   "Incluye una promesa no confirmada: ofrece iniciar la solicitud si le dan un folio, acción que las herramientas no indican que el asistente pueda realizar; el resto de la respuesta (14 días) es correct",
+   "Correcta, completa y breve; indica correctamente el plazo de 14 días y ofrece ayuda adicional sin prometer acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t4",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 2,
+  "tools_ok": 2,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3.6666666666666665,
+  "tokens": 5725.333333333333,
+  "latencia_s": 5.84,
+  "costo_usd": 0.00547,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "He solicitado el reembolso completo de PAY-00012345 por \"No usé el servicio\".\n\nResumen:\n- Folio: PAY-00012345\n- Usuario: u001 (verificado)\n- Monto reembolsado: $599.00\n- Estado de la solicitud: ejecutado\n- Referencia: REF-CB440914\n- Plazo estimado de abono: 5 a 10 días hábiles\n\n¿Quieres que cierre e",
+   "He verificado el cargo PAY-00012345: pertenece a u001, está en estado \"cobrado\", monto 599.00 MXN y fue hecho hace 7 días. No hay facturas timbradas en el periodo.\n\n¿Confirmas que quieres reembolsar el monto completo (599.00 MXN) y el motivo \"no usé el servicio\"? Si confirmas, procedo a solicitar el",
+   "Listo: pedí el reembolso completo por 599.00 MXN del folio PAY-00012345. \n\nDetalles:\n- Usuario: u001\n- Folio: PAY-00012345\n- Monto reembolsado: 599.00 MXN\n- Referencia: REF-2BBF7318\n- Plazo estimado de abono: 5 a 10 días hábiles\n\nSi necesitas que lo escale o que complete información adicional para a"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa y breve; confirmó verificación de usuario, monto y que la herramienta ejecutó el reembolso con referencia y plazo, sin prometer más de lo que las herramientas indicaron.",
+   "Correcta y completa: verificó datos clave (propiedad, estado, días, facturas), no prometió reembolso, solicitó confirmación del cliente para proceder según el procedimiento.",
+   "Correcta, completa, breve y no promete nada que no se confirmó: indica referencia, monto y plazo según la herramienta."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t5",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3,
+  "tokens": 4523,
+  "latencia_s": 4.53,
+  "costo_usd": 0.00444,
+  "juez": 3.67,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "He consultado el cargo: PAY-00012345 pertenece al usuario u001 (monto $599, cobrado hace 7 días). No eres el propietario, así que no puedo procesar el reembolso desde tu cuenta. \n\nPuedo:\n- Escalar el caso a una persona del equipo indicando que solicitaste el reembolso pero el folio no es tuyo (inclu",
+   "He revisado el cargo PAY-00012345: pertenece al usuario u001, no a tu cuenta (u002). No puedo reembolsarlo ni procesarlo desde tu sesión. \n\nPuedo:\n- Si crees que fue un cobro en tu tarjeta por error, puedo escalarlo al equipo para que investiguen (necesitaré que confirmes que quieres que cree el tic",
+   "He revisado el cargo: PAY-00012345 pertenece al usuario u001, no a tu cuenta (u002). Según el procedimiento, no puedo tramitar ni opinar sobre reembolsos de folios que no son tuyos. Puedo:\n\n- Escalar esto a una persona del equipo para que revisen la discrepancia y te indiquen pasos (crearé un ticket"
+  ],
+  "razones_juez": [
+   "Correcta y breve: consultó datos, comprobó pertenencia, no prometió reembolso y ofreció opciones de escalamiento o revisar otro folio.",
+   "Respuesta correcta y breve: detecta que el cargo no pertenece al usuario de la sesión, no promete reembolso ni acción no confirmada, ofrece opciones claras y pide confirmación para escalar.",
+   "Incorrecta: la consulta muestra que el cargo pertenece a u001, pero el asistente afirma que no es del cliente (u002) y promete crear un ticket sin que las herramientas indiquen que se haya escalado; a"
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t6",
+  "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3,
+  "tokens": 4604,
+  "latencia_s": 4.65,
+  "costo_usd": 0.00466,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "Veo el cargo PAY-00012348: pertenece a u002, monto $899.00, fecha 2026-08-30, estado \"duplicado_detectado\" (duplicado de PAY-00012347) y han pasado 5 días. Según el procedimiento, las duplicidades se revierten automáticamente en 5 días hábiles.\n\nSi no recibes el abono en el plazo indicado, abro un t",
+   "Veo el cargo: PAY-00012348 pertenece a u002, monto $899.00, fecha 2026-08-30, estado \"duplicado_detectado\" (duplicado de PAY-00012347), hace 5 días. Según la política que aplica, la reversión es automática en 5 días hábiles.\n\nPuedo:\n- Esperar: si faltan hasta 5 días hábiles desde la detección, se re",
+   "Gracias — ya verifiqué el cargo.\n\nResumen rápido:\n- Folio: PAY-00012348\n- Usuario: u002 (es tuyo)\n- Monto: $899.00\n- Fecha: 2026-08-30 (hace 5 días)\n- Estado: duplicado_detectado (es duplicado de PAY-00012347)\n- Facturas timbradas en el periodo: 0\n\nSegún la política del sistema, los cargos marcados "
+  ],
+  "razones_juez": [
+   "Correcta y completa: resume datos relevantes, aplica el procedimiento (reversión automática en 5 días hábiles) y no promete reembolso ni acción no confirmada; ofrece escalado si no se refleja.",
+   "Correcta y completa: identifica el estado 'duplicado_detectado', explica la política de reversión automática y ofrece opciones sin prometer acciones que no confirmó.",
+   "Correcta, completa, breve, y sigue la política: explica la automática reversión por duplicado y ofrece escalar sin prometer reembolso antes de confirmación."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t7",
+  "objetivo": "Mi presupuesto máximo es 500 pesos al mes, ¿me conviene el plan Pro?",
+  "n": 3,
+  "exito": 2,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3,
+  "tokens": 4230,
+  "latencia_s": 5.55,
+  "costo_usd": 0.00456,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ]
+  ],
+  "respuestas": [
+   "He revisado tu plan con el procedimiento recomendado.\n\nResumen breve:\n- Plan actual: Pro (precio listado 899 pesos/mes).\n- Límites relevantes: hasta 2000 facturas/mes.\n- Uso actual: 812 facturas este mes (≈40.6% del límite).\n- Tu presupuesto máximo: 500 pesos/mes.\n\nConclusión práctica:\n- El plan Pro",
+   "Cargué las reglas y consulté tu plan.\n\nDatos clave: estás en Pro (precio listal 899 MXN/mes), límite 2,000 facturas/mes, uso 812 facturas/mes (≈40% del límite). Tu presupuesto máximo es 500 MXN/mes.\n\n¿Te conviene Pro? No, Pro cuesta 899 > tu presupuesto de 500, así que no es compatible con tu restri",
+   "He revisado tu plan y seguí el procedimiento. Datos clave:\n- Plan actual: Pro (precio listado 899 pesos/mes).\n- Límite facturas/mes: 2000. Uso actual: 812 facturas este mes (≈40% del límite).\n- Presupuesto máximo que indicaste: 500 pesos/mes.\n\nConclusión: con un presupuesto máximo de 500 pesos/mes, "
+  ],
+  "razones_juez": [
+   "Correcta, completa y breve; respeta el presupuesto del cliente, usa datos proporcionados y no hace promesas no confirmadas.",
+   "Respuesta correcta, completa y breve; respeta el presupuesto del cliente y ofrece siguientes pasos sin prometer acciones no confirmadas.",
+   "Correcta, completa y breve; respeta el presupuesto del cliente y no promete descuentos o acciones no confirmadas por las herramientas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "routing",
+  "proveedor": "openai",
+  "tarea": "t8",
+  "objetivo": "Me sale el error E-1042 al exportar el PDF, ¿qué hago?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 2.6666666666666665,
+  "tokens": 2845.6666666666665,
+  "latencia_s": 5.54,
+  "costo_usd": 0.00339,
+  "juez": 3.67,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion",
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion",
+    "buscar_documentacion"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Voy a revisar la documentación específica del código E-1042. Dame un momento.",
+   "Gracias — tomo tu caso como u003 en modo técnico.\n\nNo tengo documentación específica para E-1042 en el catálogo. Para avanzar necesito que me confirmes 2 cosas rápidas (conservaré el contexto):\n\n1) ¿En qué pantalla ocurre exactamente la exportación (Reportes > Estado de cuenta, CFDI > Lista, otra)? ",
+   "Gracias — voy a revisar. El código E-1042 no está en los fragmentos rápidos que tengo; necesito un poco más de información para diagnosticarlo. Por favor dime:\n\n- ¿Desde qué navegador y versión intentas exportar (Chrome, Edge, Safari, Firefox)?  \n- ¿Ocurre con todas las facturas/PDFs o solo con una "
+  ],
+  "razones_juez": [
+   "Incorrecta: inventa revisar documentación sobre E-1042 pero las herramientas muestran resultados de E-4001 y no hay información sobre E-1042; además no responde la pregunta del cliente.",
+   "Respuesta correcta y completa: admite falta de documentación, pide datos concretos útiles para diagnóstico, da pasos prácticos breves y realistas y solo promete escalar si hace falta.",
+   "Respuesta correcta y apropiada: reconoce no tener info sobre E-1042, pide datos concretos para diagnosticar, ofrece pasos/alternativa de escalar; breve y sin promesas no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t1",
+  "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 2,
+  "tokens": 2723.3333333333335,
+  "latencia_s": 2.72,
+  "costo_usd": 0.00258,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "El cargo PAY-00012345 a nombre de u001 fue por $599.00, cobrado el 2026-08-28. Concepto: \"Básico mensual\". Estado: cobrado. Quieres que solicite un reembolso o necesitas más detalles?",
+   "El cargo PAY-00012345 a nombre de u001 fue por $599.00, cobrado el 2026-08-28. Concepto: \"Básico mensual\". Estado: cobrado. ¿Quieres que solicite un reembolso o necesitas algo más sobre este cargo?",
+   "El cargo PAY-00012345 a nombre de u001 fue por $599.00 MXN, cobrado el 2026-08-28. Concepto: \"Básico mensual\". Está en estado \"cobrado\". Quieres que solicite un reembolso o que te explique el cargo?"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa y breve; no promete acciones que no se confirmaron y ofrece siguiente paso opcional.",
+   "Respuesta correcta, completa y concisa; no hace promesas ni inventa información.",
+   "Respuesta correcta, completa y breve; refleja fielmente los datos devueltos por la herramienta y no promete acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t2",
+  "objetivo": "¿Cuál es mi plan y cuántas facturas he timbrado este mes?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 2,
+  "tokens": 2708.3333333333335,
+  "latencia_s": 3.3,
+  "costo_usd": 0.00249,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Tu plan es Pro. Límites relevantes: hasta 2,000 facturas/mes. Este mes has timbrado 812 facturas. ¿Deseas que revise opciones de plan o algo más?",
+   "Tu plan es Pro. Límites y precio: hasta 10 usuarios, 50 proyectos, 2000 facturas/mes, exportación a Excel; precio mensual $899.\n\nHas timbrado 812 facturas este mes (uso actual). ¿Quieres que revise si te conviene cambiar de plan o ver detalles de facturas?",
+   "Tu plan es Pro. Has timbrado 812 facturas este mes (límite mensual 2000). ¿Quieres que revise opciones de cambio de plan o algo más?"
+  ],
+  "razones_juez": [
+   "Correcta, completa, breve y sin promesas no confirmadas: identifica el plan, el límite y el uso actual, y ofrece ayuda adicional.",
+   "Respuesta correcta, completa y breve; muestra límites, precio y uso actual sin prometer acciones no confirmadas.",
+   "Correcta, completa y breve: indica el plan y el número de facturas timbradas con el límite; la oferta de ayuda es apropiada y no promete acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t3",
+  "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 2,
+  "tokens": 2956.3333333333335,
+  "latencia_s": 4.45,
+  "costo_usd": 0.00279,
+  "juez": 5,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Puedes pedir reembolso dentro de los 14 días naturales posteriores al cargo. Excepción: cargos duplicados o no reconocidos tienen reglas propias. Si quieres, te indico cómo solicitarlo desde la app.",
+   "Tienes 14 días naturales desde la fecha del cargo para solicitar un reembolso. Excepción: cargos duplicados o no reconocidos tienen reglas propias. Si quieres, te indico cómo solicitarlo desde tu cuenta.",
+   "Tienes 14 días naturales desde la fecha del cargo para solicitar el reembolso. Además:  \n- Sólo se concede un reembolso por cuenta cada 12 meses.  \n- Si procede, el abono se realiza en 5–10 días hábiles.  \nSi quieres, puedo indicarte cómo solicitarlo desde tu cuenta."
+  ],
+  "razones_juez": [
+   "Correcta, completa y breve; indica el plazo y menciona la excepción sin prometer acciones no confirmadas.",
+   "Correcta, completa y breve; menciona la excepción y ofrece ayuda para el procedimiento sin prometer más de lo demostrado por las herramientas.",
+   "Correcta, completa y breve; incluye las limitaciones y tiempos de abono sin prometer nada no confirmado."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t4",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 4,
+  "tokens": 6762.666666666667,
+  "latencia_s": 6.47,
+  "costo_usd": 0.00627,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "Listo: solicitó el reembolso completo de PAY-00012345 por no haber usado el servicio. La solicitud se ejecutó correctamente.\n\nDetalles:\n- Folio: PAY-00012345\n- Monto reembolsado: $599.00\n- Referencia: REF-AC675061\n- Plazo de abono: 5 a 10 días hábiles\n\nSi no recibe el abono pasado ese plazo, avíseme",
+   "He revisado el cargo y todo está listo: confirmé el reembolso completo.\n\nResumen:\n- Folio: PAY-00012345\n- Usuario: u001\n- Monto reembolsado: $599.00\n- Motivo: No usé el servicio\n- Referencia de la operación: REF-44FD383F\n- Plazo estimado de abono: 5 a 10 días hábiles\n\n¿Quieres que te envíe confirmac",
+   "He solicitado el reembolso completo de PAY-00012345 por 599.00 MXN.\n\nEstado: ejecutado por el sistema.\nReferencia: REF-271DC39D\nMonto: 599.00 MXN\nPlazo de abono: 5 a 10 días hábiles\n\n¿Deseas que te envíe un correo con esta información o algo más?"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa, breve, no promete más de lo que las herramientas confirmaron y provee referencia y plazo claros.",
+   "Respuesta correcta, completa y breve; no promete antes de confirmación y refleja la ejecución y datos devueltos por las herramientas.",
+   "Respuesta correcta, completa y breve; no promete más de lo confirmado por las herramientas y proporciona referencia, monto y plazo."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t5",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3,
+  "tokens": 4873.666666666667,
+  "latencia_s": 4.67,
+  "costo_usd": 0.00481,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "He revisado el cargo PAY-00012345: pertenece al usuario u001 (no a ti, u002). No puedo iniciar un reembolso sobre un cargo que no es tuyo.\n\nOpciones:\n- Si quieres que lo gestione la otra cuenta, pídeme que escale y dame el motivo para crear el ticket (por ejemplo: \"cobro no reconocido; pido reembols",
+   "He revisado el cargo PAY-00012345: pertenece al usuario u001 (monto $599, cobrado hace 7 días). No eres el dueño del folio, así que no puedo solicitar el reembolso desde tu cuenta.\n\nQué puedo hacer por ti:\n- Si quieres que lo gestionemos, indícame si quieres que escale el caso para que el equipo lo ",
+   "He consultado el cargo PAY-00012345: pertenece al usuario u001 (no a u002), monto $599, cobrado hace 7 días. No puedo procesar un reembolso de un folio que no es tuyo.\n\nOpciones:\n- Si crees que es tu cargo pero aparece con otra cuenta, dime qué pasó (misma tarjeta, correo, etc.) y escaló a una perso"
+  ],
+  "razones_juez": [
+   "Correcta y completa: identificó que el cargo no pertenece al solicitante, no prometió reembolso ni uso de herramientas no confirmadas, ofreció opciones claras y siguientes pasos breves.",
+   "Correcta, completa, breve y no promete acciones no confirmadas; ofrece pasos útiles y coherentes con las herramientas.",
+   "Correcta, breve, explica que el cargo no pertenece al usuario de la sesión y ofrece opciones de escalamiento sin prometer reembolso ni acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t6",
+  "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3,
+  "tokens": 4953.666666666667,
+  "latencia_s": 6.13,
+  "costo_usd": 0.00508,
+  "juez": 4.67,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "Gracias — verifiqué el cargo PAY-00012348. Pertenece a u002, monto $899, fecha 2026-08-30. Estado: duplicado_detectado (duplicado de PAY-00012347). Nota de política: la reversión es automática en 5 días hábiles.\n\nQué sigue:\n- Si ya pasaron 5 días hábiles desde la detección, espera a que se refleje l",
+   "Gracias. Ya verifiqué el cargo PAY-00012348:\n\n- Usuario dueño: u002 (coincide).\n- Monto: $899.00, fecha 2026-08-30.\n- Estado: duplicado_detectado (es duplicado de PAY-00012347).\n- Facturas timbradas en el periodo: 0.\n- Nota de política: \"cargo duplicado: la reversión es automática en 5 días hábiles ",
+   "He verificado el cargo PAY-00012348. Detalles clave:\n- Usuario: u002 (coincide).\n- Monto: $899.00.\n- Fecha: 2026-08-30 (hace 5 días).\n- Estado: duplicado_detectado (es duplicado de PAY-00012347).\n- Facturas timbradas en el período: 0.\n- Política: reversión automática en 5 días hábiles.\n\nSegún la pol"
+  ],
+  "razones_juez": [
+   "Correcta y completa, explica estado y siguiente paso; es algo larga y ofrece crear ticket antes de confirmarse si ya pasó el plazo.",
+   "Correcta y completa: verificó datos, siguió la política (reversión automática 5 días), no prometió reembolso antes de confirmación y ofreció abrir ticket si no aparece el abono.",
+   "Correcta, completa, breve y no promete el reembolso antes de la confirmación; ofrece el siguiente paso apropiado (abrir ticket) si no se refleja la reversión automática."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t7",
+  "objetivo": "Mi presupuesto máximo es 500 pesos al mes, ¿me conviene el plan Pro?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3,
+  "tokens": 4546.333333333333,
+  "latencia_s": 5.23,
+  "costo_usd": 0.00473,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ]
+  ],
+  "respuestas": [
+   "He cargado la guía de planes y consulté tu plan.\n\nDatos clave: estás en Pro (precio listado 899 MXN/mes), con uso actual 812 facturas/mes y límite del plan 2000 facturas/mes. Tu presupuesto máximo es 500 MXN/mes.\n\nConclusión breve: con un presupuesto tope de 500 pesos no te conviene mantener o cambi",
+   "Veo que tienes el plan Pro (precio list: 899 MXN/mes) y tu uso este mes es 812 facturas de un límite de 2000. Con tu presupuesto máximo de 500 pesos/mes no te conviene el plan Pro porque excede tu tope (899 > 500). \n\nOpciones prácticas:\n- Mantener Pro si necesitas sus límites/funciones (ya estás den",
+   "Cargué las reglas y revisé tu plan.\n\nDatos importantes: estás en Pro (precio lista 899$/mes), límite 2,000 facturas/mes; llevas 812 facturas este mes (~40.6% del límite). Tu presupuesto máximo es 500$/mes.\n\nRecomendación: con tu presupuesto (máx. 500) no te conviene mantener Pro si el criterio es pr"
+  ],
+  "razones_juez": [
+   "Correcta y completa: resume datos relevantes (precio, uso, límites), respeta el presupuesto del cliente y ofrece opciones sin prometer acciones no confirmadas.",
+   "Correcta, clara y breve; respeta el presupuesto del cliente y ofrece opciones sin prometer acciones no confirmadas.",
+   "Respuesta correcta, breve y coherente: usó los datos mostrados, respetó el presupuesto del cliente y ofreció opciones sin prometer acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "modes",
+  "proveedor": "openai",
+  "tarea": "t8",
+  "objetivo": "Me sale el error E-1042 al exportar el PDF, ¿qué hago?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 0,
+  "vueltas": 3.6666666666666665,
+  "tokens": 4867.333333333333,
+  "latencia_s": 7.8,
+  "costo_usd": 0.00519,
+  "juez": 5,
+  "tools": [
+   [
+    "cambiar_modo",
+    "buscar_documentacion"
+   ],
+   [
+    "cambiar_modo",
+    "buscar_documentacion",
+    "buscar_documentacion"
+   ],
+   [
+    "cambiar_modo",
+    "buscar_documentacion",
+    "buscar_documentacion"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Cambio a modo técnico. Consulté la documentación y no hay un artículo específico para E-1042; los resultados relacionados son sobre E-4001 (problemas de gráficas en Safari). Necesito más datos para diagnosticar E-1042:\n\n1) ¿Dónde ocurre exactamente? (Dashboard, factura, reporte, app móvil, navegador",
+   "No aparece el código E-1042 en la documentación que tengo disponible. Para resolverlo necesito más datos y, si no está en catálogo, escalarlo al equipo técnico. Dime por favor:\n\n- Qué acción exacta hiciste (por ejemplo: “Exportar PDF de una factura”, “Exportar todos los PDFs desde Reportes”).\n- URL ",
+   "No encuentro en la documentación interna un código E-1042 ni una solución registrada. Necesito más datos para diagnosticar:\n\n- ¿Qué acción exacta hiciste antes de exportar (menú, reporte, pantalla)?\n- ¿Sucede con todos los documentos o con uno en particular? Si es uno, comparte el folio o nombre del"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, breve, solicita datos relevantes para diagnóstico y ofrece escalamiento sin prometer acciones no verificadas.",
+   "Respuesta correcta, breve, solicita información concreta y no promete acciones que no pueden confirmarse (propone escalar si no se identifica).",
+   "Respuesta correcta y completa: admite que no hay registro del código, pide datos relevantes para diagnosticar y ofrece escalación sin prometer acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t1",
+  "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 3,
+  "tokens": 2997.6666666666665,
+  "latencia_s": 4.58,
+  "costo_usd": 0.003,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "He consultado el cargo. Detalles:\n\n- Folio: PAY-00012345  \n- Usuario dueño: u001  \n- Monto: $599.00 MXN  \n- Fecha: 2026-08-28 (hace 7 días)  \n- Concepto: \"Básico mensual\"  \n- Estado: cobrado\n\n¿Quieres que solicite un reembolso, necesitas el comprobante o algo más?",
+   "He consultado el cargo. Detalles:\n- Folio: PAY-00012345\n- Usuario: u001\n- Monto: $599.00 MXN\n- Fecha: 2026-08-28 (hace 7 días)\n- Concepto: Básico mensual\n- Estado: cobrado\n\n¿Quieres que solicite un reembolso de este cargo?",
+   "He verificado el cargo. Detalles:\n- Folio: PAY-00012345\n- Monto: $599.00 MXN\n- Fecha: 2026-08-28 (hace 7 días)\n- Concepto: Básico mensual\n- Estado: cobrado\n\n¿Quieres que solicite un reembolso o necesitas otra cosa sobre este cargo?"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa y breve; refleja fielmente los datos devueltos por la herramienta y no promete acciones no confirmadas.",
+   "Respuesta correcta, completa y breve; presenta monto y concepto exactos y no promete acciones no confirmadas.",
+   "Respuesta correcta, completa, breve y no incluye promesas no confirmadas; ofrece opción de siguiente paso."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t2",
+  "objetivo": "¿Cuál es mi plan y cuántas facturas he timbrado este mes?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 3,
+  "tokens": 2982,
+  "latencia_s": 4.2,
+  "costo_usd": 0.00293,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Tu plan actual es Pro. Detalles relevantes:\n- Límite de facturas/mes: 2,000. Este mes has timbrado 812 facturas.\n- Provee hasta 10 usuarios y 50 proyectos.\n- Precio mensual: $899.\n- No has recibido reembolsos en los últimos 12 meses.\n\n¿Quieres que compare opciones para cambiar de plan o que revise a",
+   "Tu plan es Pro. Límites y uso del mes:\n- Límite de facturas/mes: 2000 — Has timbrado 812 este mes.\n- Usuarios: 10 (límite)\n- Proyectos: 50 (usas 23)\n- Exportación a Excel: incluida\n- Precio: $899 MXN/mes\n\n¿Quieres que revise si te conviene cambiar de plan o que haga otra cosa?",
+   "Tienes el plan Pro. Este mes has timbrado 812 facturas (límite mensual del plan: 2000). ¿Quieres que revise opciones para cambiar de plan o ver el detalle por proyecto?"
+  ],
+  "razones_juez": [
+   "Correcta, completa, breve y sin promesas no confirmadas; resume fielmente los datos retornados por la herramienta.",
+   "Correcta, completa y breve; refleja fielmente los datos devueltos por la herramienta y no promete acciones no confirmadas.",
+   "Correcta, completa, breve y no hace promesas; informa plan y facturas timbradas y ofrece opciones de seguimiento apropiadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t3",
+  "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 3,
+  "tokens": 3244.6666666666665,
+  "latencia_s": 5.46,
+  "costo_usd": 0.00325,
+  "juez": 5,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Según la política de Facturio, tienes 14 días naturales desde la fecha del cargo para solicitar un reembolso. Si quieres, puedo revisar un cargo específico (dame el folio PAY-XXXXXXXX) o explicarte cómo se abona y los límites.",
+   "Puedes solicitar reembolso dentro de los 14 días naturales siguientes al cargo. Además:\n\n- Excepción: cargos duplicados o no reconocidos tienen reglas específicas (ver política).\n- Nota: solo se permite un reembolso por cuenta cada 12 meses y el reembolso puede ser proporcional si ya se timbró factu",
+   "Puedes solicitar un reembolso dentro de los 14 días naturales siguientes a la fecha del cargo. Excepción: cargos duplicados o no reconocidos tienen reglas específicas. Si quieres, puedo revisar un folio concreto o decirte cómo solicitarlo desde Configuración → Pagos."
+  ],
+  "razones_juez": [
+   "Correcta, completa y breve; responde el plazo exacto y ofrece opciones útiles sin prometer acciones no confirmadas.",
+   "Respuesta correcta, completa y breve; no hace promesas además de lo que la documentación indica y ofrece ayuda práctica.",
+   "Respuesta correcta, completa, breve y sin promesas no confirmadas; ofrece ayuda adicional pertinente."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t4",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 5,
+  "tokens": 6841,
+  "latencia_s": 7.42,
+  "costo_usd": 0.00631,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "He solicitado el reembolso completo de PAY-00012345 por \"No usé el servicio\". Resultado: ejecutado con referencia REF-F1C3E73E. Monto: $599.00. Plazo de abono: 5 a 10 días hábiles. ¿Algo más en lo que te ayude?",
+   "He solicitado el reembolso completo de PAY-00012345 por \"No usé el servicio\". Resultado: ejecutado con referencia REF-0B4A8A71. Monto: $599.00. Plazo de abono: 5 a 10 días hábiles. ¿Deseas que te envíe confirmación por correo?",
+   "He solicitado el reembolso completo del cargo PAY-00012345 por 599.00 MXN según pediste.\n\nResumen:\n- Folio: PAY-00012345\n- Usuario: u001 (verificado)\n- Monto reembolsado: 599.00 MXN\n- Motivo: \"No usé el servicio\"\n- Referencia: REF-F2AEA7C9\n- Plazo de abono: 5 a 10 días hábiles\n\nSi necesitas que lo e"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa, breve y se limita a lo que las herramientas confirmaron (ejecución, referencia, monto y plazo), sin promesas adicionales.",
+   "Respuesta correcta, completa y breve; comunica resultado confirmado por la herramienta, monto y plazo, y no promete nada no confirmado.",
+   "Correcta, completa, breve y no promete nada que las herramientas no confirmaron: verificó usuario, aplicó la regla de monto completo (sin facturas timbradas), ejecutó el reembolso y confirmó referenci"
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t5",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 4,
+  "tokens": 5029.333333333333,
+  "latencia_s": 5.14,
+  "costo_usd": 0.00488,
+  "juez": 3,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "He verificado el cargo PAY-00012345: pertenece al usuario u001, no a tu cuenta (u002). No puedo reembolsar un cargo que no es de tu cuenta. \n\nPuedo:\n- Escalar el caso para que revisen (si quieres que lo atienda alguien del equipo, lo dejo en un ticket indicando folio y diferencia de usuario).  \n- Si",
+   "He verificado el cargo PAY-00012345: pertenece al usuario u001 (monto $599, cobrado hace 7 días). No eres el propietario de ese folio, así que no puedo reembolsarlo desde tu cuenta. \n\nPuedo:\n- Escalar el caso al equipo indicando que solicitaste reembolso pero el folio pertenece a otra cuenta (includ",
+   "He consultado el cargo PAY-00012345: pertenece al usuario u001 (monto $599, cobrado hace 7 días). No eres el dueño del folio, así que no puedo reembolsarlo ni gestionarlo desde tu cuenta. Debo escalarlo a una persona del equipo para que revisen la situación; ¿quieres que cree el ticket indicando que"
+  ],
+  "razones_juez": [
+   "Correcta, breve y sigue el procedimiento: verifica pertenencia del cargo, no promete reembolso y ofrece escalar si el cliente lo pide.",
+   "Afirmó incorrectamente que el cliente no es propietario aunque la herramienta indica que sí (usuario u001), y además promete escalar incluyendo datos sin confirmar procedimientos exactos.",
+   "Dice que el folio no es del cliente pese a que la consulta muestra usuario=u001 sin indicar que el cliente es distinto; además promete escalar sin confirmar procedimiento ni seguir pasos del procedimi"
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t6",
+  "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 4,
+  "tokens": 5187.666666666667,
+  "latencia_s": 7.29,
+  "costo_usd": 0.00556,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "Gracias — ya verifiqué el cargo PAY-00012348. Datos clave:\n- Usuario: u002 (coincide).\n- Monto: $899.00.\n- Fecha: 2026-08-30 (hace 5 días).\n- Estado: duplicado_detectado (duplicado de PAY-00012347).\n- Facturas timbradas en el periodo: 0.\n- Política: reversión automática en 5 días hábiles.\n\nComo el s",
+   "Gracias — ya verifiqué el cargo PAY-00012348.\n\nResumen rápido:\n- Folio: PAY-00012348\n- Usuario dueño: u002 (usted)\n- Monto: $899.00\n- Fecha: 2026-08-30 (hace 5 días)\n- Estado: duplicado_detectado (duplicado de PAY-00012347)\n- Facturas timbradas en el periodo: 0\n- Nota de política: \"cargo duplicado: ",
+   "Gracias — ya verifiqué el cargo. Detalles clave:\n- Folio: PAY-00012348\n- Usuario dueño: u002 (usted)\n- Monto: $899.00\n- Fecha: 2026-08-30 (hace 5 días)\n- Estado: duplicado_detectado (duplicado de PAY-00012347)\n- Facturas timbradas en el periodo: 0\n- Nota de política: reversión automática en 5 días h"
+  ],
+  "razones_juez": [
+   "Correcta, completa, breve y no promete acciones no confirmadas; ofrece siguiente paso apropiado (abrir ticket) según el procedimiento.",
+   "Respuesta correcta, completa y breve; no promete acciones no confirmadas y sigue el procedimiento indicado por las herramientas.",
+   "Respuesta correcta, completa y breve; no promete el reembolso antes de confirmación y ofrece opciones coherentes según el procedimiento."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t7",
+  "objetivo": "Mi presupuesto máximo es 500 pesos al mes, ¿me conviene el plan Pro?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 4,
+  "tokens": 4763.333333333333,
+  "latencia_s": 6.25,
+  "costo_usd": 0.00506,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ]
+  ],
+  "respuestas": [
+   "Cargué la guía de planes y consulté tu plan.\n\nResumen rápido:\n- Plan actual: Pro (precio listal 899 pesos/mes).\n- Uso actual: 812 facturas/mes de un límite de 2,000.\n- Tu presupuesto máximo: 500 pesos/mes.\n\nConclusión práctica:\n- El plan Pro cuesta 899 > tu presupuesto (500), así que no te conviene ",
+   "Cargué las reglas y consulté tu plan.\n\nDatos relevantes: estás en Pro (precio listal 899 MXN/mes), límite 2,000 facturas/mes, uso actual 812 facturas/mes. Tu presupuesto máximo es 500 MXN/mes.\n\nConclusión: con tu presupuesto (500 MXN) no conviene recomendar el plan Pro, porque su precio listado (899",
+   "He cargado el procedimiento de recomendación y consulté tu plan.\n\nResumen rápido:\n- Plan actual: Pro (precio listado 899 pesos/mes).\n- Tu uso: 812 facturas este mes de un límite de 2000 (≈40% uso).\n- Tu presupuesto máximo: 500 pesos/mes.\n\nConclusión: Con un presupuesto máximo de 500 pesos no te conv"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa y breve; usa datos consultados, respeta el presupuesto del cliente y propone un siguiente paso sin prometer acciones no realizadas.",
+   "Correcta, completa, breve y no promete acciones no confirmadas; explica claramente que Pro (899 MXN) supera el presupuesto y ofrece opciones respetando la regla de no recomendar planes más caros.",
+   "Respuesta correcta, completa y breve; usa datos de las herramientas, respeta el presupuesto y no promete acciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs",
+  "proveedor": "openai",
+  "tarea": "t8",
+  "objetivo": "Me sale el error E-1042 al exportar el PDF, ¿qué hago?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 4.333333333333333,
+  "tokens": 4628,
+  "latencia_s": 8.01,
+  "costo_usd": 0.00522,
+  "juez": 5,
+  "tools": [
+   [
+    "buscar_documentacion",
+    "buscar_documentacion",
+    "cargar_skill",
+    "escalar_a_humano"
+   ],
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion",
+    "buscar_documentacion"
+   ]
+  ],
+  "skills": [
+   [
+    "escalacion"
+   ],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Gracias. No encuentro referencia a E-1042 en el catálogo interno de errores. Escalé el caso a soporte técnico y creé el ticket HUM-0001 para investigar logs y reproducciones. Necesito que me confirmes por favor:\n\n- Navegador y versión donde intentaste exportar (ej. Chrome 118, Safari 16).\n- Si ocurr",
+   "Gracias — voy a ayudarte con eso. Según nuestro catálogo, los errores de exportación a PDF están en la familia E-4xxx; no encuentro un registro exacto para E-1042 en la documentación de exportaciones. Necesito dos cosas rápidas para triage:\n\n1) ¿En qué navegador y versión estás (Chrome, Edge, Safari",
+   "Gracias — reviso eso. Busqué en la documentación de errores y no encuentro una entrada específica para E-1042. Para poder ayudar necesito 2 cosas rápidas:\n\n1) ¿Puedes decirme desde qué navegador y versión estás exportando (ej. Chrome 118, Safari 16, Edge)?  \n2) Adjunta —o pega— el mensaje completo q"
+  ],
+  "razones_juez": [
+   "Correcta y completa: admite no encontrar el código, escaló y creó ticket, pide información relevante para reproducir y sugiere pruebas básicas sin prometer solución.",
+   "Respuesta correcta, solicita datos de diagnóstico útiles, ofrece pasos prácticos y no promete acciones no confirmadas.",
+   "Correcta y clara: admite no encontrar el código, pide datos concretos necesarios y ofrece escalar pidiendo autorización sin prometer soluciones no confirmadas."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t1",
+  "objetivo": "¿Cuánto cobró el cargo PAY-00012345 y de qué fue?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 3,
+  "tokens": 2828.3333333333335,
+  "latencia_s": 4.45,
+  "costo_usd": 0.00287,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ],
+   [
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Encontré el cargo PAY-00012345: fue de $599.00, cobrado el 2026-08-28 por \"Básico mensual\" (estado: cobrado). Han pasado 7 días desde el cargo. ¿Quieres que solicite un reembolso o necesitas más detalles?",
+   "He visto el cargo PAY-00012345: fue por $599.00, cobrado el 2026-08-28, concepto \"Básico mensual\" (estado: cobrado). Quieres que gestione algo más con este cargo (ej. revisar detalles, solicitar reembolso)?",
+   "He consultado el cargo. Detalles:\n\n- Folio: PAY-00012345\n- Monto: $599.00 MXN\n- Fecha: 2026-08-28\n- Concepto: \"Básico mensual\"\n- Estado: cobrado\n- Días desde el cargo: 7\n\n¿Quieres que solicite un reembolso o necesitas otra cosa sobre este cargo?"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa y breve; solo ofrece opciones de seguimiento sin prometer acciones no confirmadas.",
+   "Respuesta correcta, completa y breve; solo ofrece opciones de seguimiento sin prometer acciones no confirmadas.",
+   "Correcta, completa, breve y no promete acciones no confirmadas; ofrece opción relevante al cliente."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t2",
+  "objetivo": "¿Cuál es mi plan y cuántas facturas he timbrado este mes?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 3,
+  "tokens": 2846,
+  "latencia_s": 4.3,
+  "costo_usd": 0.00301,
+  "juez": 5,
+  "tools": [
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ],
+   [
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Tu plan es Pro. Detalles relevantes:\n- Usuario: Roberto Sánchez\n- Plan: Pro\n- Límite de facturas/mes: 2,000\n- Facturas timbradas este mes: 812\n- Proyectos usados: 23 de 50\n- Usuarios permitidos: 10\n- Precio mensual: $899\n- Reembolsos en últimos 12 meses: ninguno\n\n¿Quieres que revise si te conviene c",
+   "Tu plan es Pro. Detalles relevantes:\n- Límite de facturas por mes: 2,000\n- Facturas timbradas este mes: 812\n- Proyectos usados: 23 de 50\n- Usuarios permitidos: hasta 10\n- Exportación a Excel incluida\n- Precio mensual: $899\n\n¿Quieres que revise opciones para cambiar de plan o ver el detalle de uso po",
+   "Tienes el plan Pro. Límites y uso actual relevantes:\n- Límite de facturas/mes: 2,000\n- Facturas timbradas este mes: 812\n- Proyectos usados: 23/50\n- Usuarios permitidos: 10\n- Precio mensual: $899\n\n¿Quieres que revise opciones de cambio de plan o algo más sobre tu uso?"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa, breve y sin promesas no confirmadas; presenta todos los datos relevantes y ofrece ayuda adicional de forma apropiada.",
+   "Correcta, completa, breve y sin promesas no confirmadas; muestra límites, uso y precio claramente y ofrece ayuda adicional apropiada.",
+   "Correcta, completa, concisa y sin prometer acciones no confirmadas; refleja fielmente los datos devueltos por la herramienta."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t3",
+  "objetivo": "¿Cuántos días tengo para pedir un reembolso?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 3,
+  "tokens": 3043,
+  "latencia_s": 4.29,
+  "costo_usd": 0.00303,
+  "juez": 5,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   []
+  ],
+  "respuestas": [
+   "Puedes pedir reembolso dentro de los 14 días naturales siguientes al cargo. Fuera de ese plazo normalmente no procede, salvo excepciones (p. ej. cargos duplicados o no reconocidos). Si quieres, te indico cómo solicitarlo desde tu cuenta.",
+   "Puedes solicitar reembolso dentro de los 14 días naturales desde la fecha del cargo. Excepciones (cargos duplicados o no reconocidos) tienen reglas propias. Si quieres, puedo revisar un cargo concreto —pásame el folio (formato PAY-00012345) o indícame que quieres iniciar una solicitud.",
+   "Tienes 14 días naturales desde la fecha del cargo para solicitar un reembolso.  \n\nSi quieres, puedo revisar un cargo concreto (dame el folio PAY-xxxxxxxx) o indicarte cómo solicitarlo desde Configuración → Pagos."
+  ],
+  "razones_juez": [
+   "Respuesta correcta, breve y sin promesas; menciona excepciones y ofrece ayuda para el siguiente paso.",
+   "Correcta, completa y breve; ofrece acción concreta sin prometer nada que las herramientas no confirmaron.",
+   "Respuesta correcta, completa y breve; ofrece acciones adicionales sin prometer más de lo documentado."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t4",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 5,
+  "tokens": 6567.666666666667,
+  "latencia_s": 7.99,
+  "costo_usd": 0.00629,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura",
+    "reembolsar"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "He procesado la solicitud y ejecuté el reembolso completo.\n\nDetalles:\n- Folio: PAY-00012345\n- Monto reembolsado: $599.00 MXN\n- Referencia: REF-592231BB\n- Plazo de abono: 5 a 10 días hábiles\n\nSi no aparece en ese plazo, dime y lo escalamos.",
+   "Listo: solicité y ejecutaron el reembolso completo del cargo PAY-00012345 por 599.00 MXN (motivo: \"No usé el servicio\"). Referencia: REF-35DC9373. El abono llegará al mismo medio de pago en 5 a 10 días hábiles. ¿Quieres que cree un ticket por seguimiento o cierro el caso?",
+   "He procesado el reembolso total del folio PAY-00012345 por 599.00 MXN (motivo: \"No usé el servicio\").\n\nDetalles:\n- Usuario: u001\n- Fecha del cargo: 2026-08-28 (hace 7 días)\n- Estado original: cobrado\n- Monto reembolsado: 599.00 MXN\n- Referencia: REF-F651F985\n- Plazo de abono: 5 a 10 días hábiles\n\nSi"
+  ],
+  "razones_juez": [
+   "Correcta, completa y breve; no promete más de lo confirmado por las herramientas y presenta referencia, monto y plazo según la ejecución.",
+   "Correcta, completa, breve y no hace promesas que las herramientas no confirmaron (reembolso ejecutado con referencia y plazo).",
+   "Correcta, completa y breve; no promete antes de confirmación y coincide con los resultados de las herramientas (reembolso ejecutado y referencia proporcionada)."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t5",
+  "objetivo": "Reembolsa el cargo PAY-00012345 completo, no usé el servicio.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 4,
+  "tokens": 4840,
+  "latencia_s": 5.88,
+  "costo_usd": 0.00502,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ],
+   [
+    "cargar_skill",
+    "consultar_factura"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "He revisado el cargo: PAY-00012345 pertenece al usuario u001 (no a tu cuenta u002), monto $599, cobrado hace 7 días. No puedo reembolsar un cargo que no es de tu cuenta.\n\nPuedo:\n- Si tú eres el dueño real del cargo y hubo un error, puedo escalar el caso a una persona para que lo revise (incluye foli",
+   "He revisado el cargo PAY-00012345. Detalles relevantes:\n- Usuario dueño del cargo: u001 (no coincide con tu sesión u002).\n- Monto: $599.00\n- Fecha: 2026-08-28 (hace 7 días)\n- Estado: cobrado\n- Facturas timbradas en el período: 0\n\nNo puedo reembolsar un cargo que pertenece a otra cuenta (u001). Para ",
+   "He revisado el cargo PAY-00012345: pertenece al usuario u001 (monto 599 MXN, cobrado hace 7 días). No es del usuario de la sesión (u002), así que no puedo procesar el reembolso. Según el procedimiento, debo escalar estos casos a una persona del equipo.\n\n¿Quieres que cree el ticket para que lo revise"
+  ],
+  "razones_juez": [
+   "Correcta y breve: verifica que el cargo no pertenece al solicitante, informa el estado y opciones sin prometer reembolso ni acciones no confirmadas.",
+   "Correcta y completa: verifica propietario, aplica reglas (no promete reembolso), ofrece alternativas claras y es breve.",
+   "Correcta, breve y sigue el procedimiento: verificó pertenencia del cargo, no promete reembolso ni acciones no confirmadas, y ofrece escalar solicitando motivo."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t6",
+  "objetivo": "El cargo PAY-00012348 me salió doble, devuélvanme el dinero.",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 4,
+  "tokens": 4738.666666666667,
+  "latencia_s": 6.72,
+  "costo_usd": 0.00527,
+  "juez": 4.67,
+  "tools": [
+   [
+    "consultar_factura",
+    "cargar_skill"
+   ],
+   [
+    "consultar_factura",
+    "cargar_skill"
+   ],
+   [
+    "consultar_factura",
+    "cargar_skill"
+   ]
+  ],
+  "skills": [
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ],
+   [
+    "reembolsos"
+   ]
+  ],
+  "respuestas": [
+   "Gracias — ya verifiqué el cargo. Detalles clave:\n- Folio: PAY-00012348\n- Usuario dueño: u002 (coincide)\n- Monto: $899.00\n- Fecha: 2026-08-30 (hace 5 días)\n- Estado: duplicado_detectado (es duplicado de PAY-00012347)\n- Nota de política: la reversión automática se aplica en 5 días hábiles; si no se re",
+   "Gracias — ya verifiqué el cargo.\n\nResumen rápido:\n- Folio: PAY-00012348\n- Monto: $899.00\n- Fecha: 2026-08-30 (hace 5 días)\n- Estado registrado: \"duplicado_detectado\" (duplicado de PAY-00012347)\n- Nota de política: la reversión por cargo duplicado es automática en 5 días hábiles; si no se refleja, ha",
+   "Gracias — ya revisé el cargo. Detalles rápidos:\n- Folio: PAY-00012348\n- Monto: $899.00\n- Fecha: 2026-08-30 (hace 5 días)\n- Estado: duplicado_detectado (duplicado de PAY-00012347)\n\nSegún el procedimiento y la política del sistema, los cargos marcados como \"duplicado_detectado\" se revierten automática"
+  ],
+  "razones_juez": [
+   "Respuesta correcta, completa y breve; explica la política automática sin prometer acciones que no confirmó y ofrece siguiente paso (abrir ticket) si no se refleja.",
+   "Correcta, completa y breve; explica el estado automático de reversión, pide al cliente verificar y ofrece abrir ticket sin prometer acciones no confirmadas.",
+   "Correcta y completa en su explicación y opciones al cliente, pero confunde días naturales con hábiles al decir que han pasado 5 días y que la reversión debería estar en proceso; además ofrece abrir ti"
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t7",
+  "objetivo": "Mi presupuesto máximo es 500 pesos al mes, ¿me conviene el plan Pro?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 4,
+  "tokens": 4575.333333333333,
+  "latencia_s": 7.42,
+  "costo_usd": 0.00526,
+  "juez": 5,
+  "tools": [
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ],
+   [
+    "cargar_skill",
+    "consultar_plan"
+   ]
+  ],
+  "skills": [
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ],
+   [
+    "planes"
+   ]
+  ],
+  "respuestas": [
+   "Resumen breve: actualmente tienes el plan Pro (precio list: 899 pesos/mes) y tu uso mensual es 812 facturas de un límite de 2000.\n\nEvaluación respecto a tu presupuesto (500 pesos/mes):\n- El plan Pro cuesta 899 > 500, por lo que no te conviene si tu presupuesto máximo es 500: supera tu límite.\n- En u",
+   "Resumen rápido: actualmente estás en el plan Pro (precio listad o actual: 899 pesos/mes) y tu uso mensual es 812 facturas (límite Pro: 2000). Tu presupuesto máximo es 500 pesos/mes.\n\nRecomendación:\n- Con un presupuesto máximo de 500 pesos no te conviene contratar (ni mantener) el plan Pro si el prec",
+   "Gracias — tomé en cuenta tu presupuesto máximo de 500 pesos/mes.\n\nResumen rápido de tu plan actual (según sistema):\n- Plan: Pro\n- Precio listado: 899 pesos/mes\n- Límite de facturas/mes: 2000\n- Uso actual este mes: 812 facturas (≈40% del límite)\n\n¿Te conviene mantener o cambiar?\n- Si tu criterio prin"
+  ],
+  "razones_juez": [
+   "Correcta, completa y breve; respeta el presupuesto del cliente, usa datos de las herramientas y no promete acciones no confirmadas.",
+   "Correcta y completa: confirma plan y uso, compara con presupuesto, sigue la regla de no recomendar fuera del presupuesto y propone pasos prácticos, sin prometer acciones no realizadas.",
+   "Correcta, completa, breve y no hace promesas sobre descuentos o acciones no confirmadas; respeta el presupuesto y explica uso vs precio claramente."
+  ],
+  "errores": []
+ },
+ {
+  "diseno": "handoffs_minimo",
+  "proveedor": "openai",
+  "tarea": "t8",
+  "objetivo": "Me sale el error E-1042 al exportar el PDF, ¿qué hago?",
+  "n": 3,
+  "exito": 3,
+  "tools_ok": 3,
+  "prohibida": 0,
+  "guardrail_salida": 0,
+  "handoffs": 1,
+  "vueltas": 5,
+  "tokens": 5638.333333333333,
+  "latencia_s": 9.54,
+  "costo_usd": 0.00631,
+  "juez": 5,
+  "tools": [
+   [
+    "buscar_documentacion"
+   ],
+   [
+    "buscar_documentacion",
+    "buscar_documentacion",
+    "buscar_documentacion",
+    "escalar_a_humano"
+   ],
+   [
+    "buscar_documentacion",
+    "buscar_documentacion",
+    "cargar_skill",
+    "escalar_a_humano"
+   ]
+  ],
+  "skills": [
+   [],
+   [],
+   [
+    "escalacion"
+   ]
+  ],
+  "respuestas": [
+   "Gracias — voy a ayudarte. El código E-1042 no aparece directamente en los fragmentos que la documentación devolvió; necesito revisar el catálogo completo de errores para ese código. ¿Me confirmas:\n\n- Qué navegador y versión estás usando (Chrome/Edge/Firefox/Safari y número)?\n- En qué paso exacto ocu",
+   "Gracias — ya lo escalé a soporte técnico (ticket HUM-0001). No tengo documentación sobre E-1042 en el catálogo; el equipo investigará logs y causa raíz.\n\nMientras tanto, prueba esto para acelerar la resolución:\n1. Intenta exportar desde otro navegador (Chrome o Edge) y en modo incógnito.\n2. Limpia c",
+   "Gracias — voy a escalar esto porque el código E-1042 no aparece en nuestro catálogo interno.\n\nQué necesito que me digas para pasarlo al equipo técnico (y adjuntar al ticket HUM-0001):\n- Fecha y hora (zona horaria) exacta del intento de exportar.\n- Navegador y versión (ej.: Chrome 118.0.6045) o app m"
+  ],
+  "razones_juez": [
+   "Correcta y apropiada: admite que el código no apareció en la búsqueda, pide datos relevantes para diagnosticar (navegador, paso y texto completo) y ofrece escalado opcional sin prometer acciones no ve",
+   "Respuesta correcta, breve, ofrece pasos útiles y solicita datos sin prometer acciones no confirmadas (solo indicó que escaló y que el equipo investigará).",
+   "Correcta, completa, breve, pide datos relevantes y no promete acciones que no se confirmaron."
+  ],
+  "errores": []
+ }
+]

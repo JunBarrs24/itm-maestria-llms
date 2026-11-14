@@ -1,11 +1,12 @@
 fastapi
 uvicorn[standard]
 openai>=1.60
+openai-agents>=0.22
 pydantic>=2
 python-dotenv
+pytest
 # Si el entorno ya trae urllib3 2.7 con Brotli o zstandard viejos, aparece
 # "TypeError: Decompressor.decompress() got an unexpected keyword argument 'output_buffer_limit'".
 # Estas versiones mínimas lo evitan; no se usan si el entorno no las necesita.
 brotli>=1.2.0
 zstandard>=0.23.0
-openai-agents>=0.22
