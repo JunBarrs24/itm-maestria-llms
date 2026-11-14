@@ -10,11 +10,18 @@ import re
 
 from agents import GuardrailFunctionOutput, output_guardrail
 
-AFIRMA_REEMBOLSO = re.compile(r"reembolso[^.]{0,60}(ejecut|proces|realiz|aplic|tramit[ae]d|listo)|REF-[0-9A-F]{8}", re.I)
+# Dispara con afirmaciones en primera persona sobre el reembolso del cliente ("he procesado tu reembolso",
+# "tu reembolso fue ejecutado", una referencia REF-). No dispara con texto sobre políticas de terceros
+# ("Mercado Libre procesa el reembolso en 10 días"): el guardrail mira acciones nuestras, no el tema.
+AFIRMA_REEMBOLSO = re.compile(
+    r"\bREF-[0-9A-F]{8}\b"
+    r"|\b(he|hemos|ya)\s+(procesad|ejecutad|realizad|aplicad|tramitad|solicitad)\w*\s+(el|tu|su)\s+reembolso"
+    r"|\b(tu|su)\s+reembolso\s+(fue|ha sido|quedó|está)\s+(procesad|ejecutad|realizad|aplicad|tramitad|listo)",
+    re.I)
 
 
 def afirma_reembolso_sin_tool(texto: str, ejecutadas: list[dict]) -> bool:
-    """True si la respuesta dice que hubo reembolso y ninguna tool `reembolsar` se ejecutó en el turno."""
+    """True si la respuesta afirma que nosotros reembolsamos al cliente y ninguna tool `reembolsar` se ejecutó."""
     hubo = any(e.get("tool") == "reembolsar" for e in ejecutadas)
     return bool(AFIRMA_REEMBOLSO.search(texto or "")) and not hubo
 

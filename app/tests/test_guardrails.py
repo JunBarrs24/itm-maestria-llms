@@ -21,6 +21,10 @@ def test_afirmar_reembolso_sin_tool():
     assert afirma_reembolso_sin_tool("Listo, tu reembolso fue procesado. Referencia REF-7A86EDB3.", [])
     assert not afirma_reembolso_sin_tool("Listo, tu reembolso fue procesado. Referencia REF-7A86EDB3.", [{"tool": "reembolsar"}])
     assert not afirma_reembolso_sin_tool("Tienes 14 días para pedir un reembolso.", [])
+    assert afirma_reembolso_sin_tool("He procesado tu reembolso de 599 pesos.", [])
+    assert afirma_reembolso_sin_tool("Tu reembolso fue ejecutado hoy.", [])
+    # texto sobre terceros: habla de reembolsos, pero no afirma una acción nuestra
+    assert not afirma_reembolso_sin_tool("Mercado Libre procesa el reembolso en 10 días hábiles una vez recibido el producto.", [])
 
 
 def test_datos_personales():
