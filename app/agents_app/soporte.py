@@ -59,7 +59,7 @@ def agente_modes(proveedor: str, effort: str, summary: str) -> Agent:
     tools = registrar()
     dinamicas = [dataclasses.replace(t, is_enabled=_tool_habilitada_en_modo(n)) for n, t in tools.items()
                  if n not in ("cambiar_modo", "cargar_skill") and not t.hosted]
-    hospedadas = [t for t in tools.values() if t.hosted]   # sin is_enabled: siempre visibles en este diseño
+    hospedadas = [t for t in tools.values() if t.hosted]   # las hospedadas no aceptan is_enabled: siempre visibles en este diseño
     return Agent(name=NOMBRE, instructions=_instrucciones_del_modo,
                  tools=dinamicas + hospedadas + [tools["cambiar_modo"], tools["cargar_skill"]],
                  model=models.modelo(proveedor), model_settings=models.ajustes(proveedor, effort, summary, con_hosted=bool(hospedadas)),

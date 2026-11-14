@@ -20,6 +20,9 @@ from pathlib import Path
 AQUI = Path(__file__).resolve().parent
 
 MODOS: dict[str, dict] = {
+    # modo de arranque del diseño modes: angosto a propósito, para que elegir especialista sea una decisión real
+    "inicio": {"tools": ["buscar_documentacion"],
+               "descripcion": "Modo de arranque: solo puede leer la documentación; debe cambiar a un especialista para actuar."},
     "general": {"tools": ["consultar_factura", "consultar_plan", "buscar_documentacion", "reembolsar", "escalar_a_humano", "web_search", "leer_pagina"],
                 "descripcion": "Cualquier tema; todas las tools."},
     "facturacion": {"tools": ["consultar_factura", "consultar_plan", "buscar_documentacion", "reembolsar", "escalar_a_humano"],

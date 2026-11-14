@@ -41,7 +41,7 @@ def preparar(sesion: Sesion, texto: str, opciones: dict):
         agente = soporte.agente_routing(modo, o["proveedor"], o["effort"], config.REASONING_SUMMARY)
         regla = "regex sobre el mensaje (el código elige el modo)"
     elif o["diseno"] == "modes":
-        modo = sesion.estado.get("modo") or "general"
+        modo = sesion.estado.get("modo") if sesion.estado.get("modo") not in (None, "general") else "inicio"
         agente = soporte.agente_modes(o["proveedor"], o["effort"], config.REASONING_SUMMARY)
         regla = "el modelo elige el modo con cambiar_modo"
     else:
@@ -51,8 +51,9 @@ def preparar(sesion: Sesion, texto: str, opciones: dict):
     sesion.estado["modo"] = modo
     contexto_app = {"usuario_id": sesion.estado.get("usuario_id"), "side_effects_automaticos": o["side_effects"], "modo": modo,
                     "ejecutadas": [], "skills_cargados": [], "cambios_de_modo": []}
+    visibles = ["transfer_to_*"] if modo == "triage" else tools_del_modo(modo) + ["cargar_skill"] + (["cambiar_modo"] if o["diseno"] == "modes" else [])
     trace.append({"tipo": "routing", "diseno": o["diseno"], "ruta": modo, "regla": regla, "proveedor": o["proveedor"], "modelo": models.nombre_modelo(o["proveedor"]),
-                  "tools_visibles": tools_del_modo(modo) if modo != "triage" else ["transfer_to_*"], "side_effects_automaticos": o["side_effects"],
+                  "tools_visibles": visibles, "side_effects_automaticos": o["side_effects"],
                   "effort": models.effort_efectivo(o["effort"], modo in ("general", "web") or o["diseno"] == "modes")})
     # 2) qué ve el modelo
     contexto = sesion.construir_contexto(o["estrategia"])

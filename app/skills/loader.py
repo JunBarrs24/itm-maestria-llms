@@ -1,6 +1,6 @@
 """Skills: instrucciones y procedimientos que se cargan a demanda.
 
-Cada skill es una carpeta con un SKILL.md: un frontmatter con `name` y `description` (siempre
+Cada skill es una carpeta con un SKILL.md: un md con `name` y `description` (siempre
 visibles para el modelo, cortas) y un cuerpo (visible solo cuando el modelo lo carga con la tool
 `cargar_skill`). Es context engineering aplicado a las instrucciones: KEEP la descripción, DROP el
 cuerpo hasta que hace falta. El mismo formato que usan los Agent Skills de Anthropic y Claude Code.
