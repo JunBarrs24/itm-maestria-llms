@@ -11,7 +11,7 @@ Una tool por archivo. Agregar una tool es crear un archivo aquí; `registry.regi
 | `escalar_a_humano.py` | sí | Crea un ticket. |
 | `cambiar_modo.py` | no | Semana 12: el agente cambia de modo (instrucciones y tools) él mismo. |
 | `cargar_skill.py` | no | Semana 12: carga el cuerpo de un skill de `skills/` cuando hace falta. |
-| `buscar_web.py` | no | Semana 12: búsqueda web hospedada por OpenAI (`WebSearchTool`). No corre en nuestra máquina; se cobra por llamada. |
+| `buscar_web.py` | no | Semana 12: búsqueda web hospedada por OpenAI (`WebSearchTool`). No corre en nuestra máquina; se cobra por llamada. Trae su propio lector de páginas (`open_page`); comentada está la opción `external_web_access=False` para que lea solo con `leer_pagina`. |
 | `leer_pagina.py` | no | Semana 12: descarga una página y devuelve su texto, con sandbox ligero (solo http(s), sin hosts privados, tiempo y tamaño máximos, recorte a 4,000 caracteres). |
 | `registry.py` | | Decoradores `@progreso` y `@side_effect`, la regla `_requiere_aprobacion`, el registro. |
 

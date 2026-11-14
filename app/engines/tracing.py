@@ -52,8 +52,14 @@ class TraceParaLaApp(TracingProcessor):
             for o in salida:   # las tools hospedadas no tienen span de function: se registran desde la respuesta
                 if o.get("type") == "web_search_call":
                     accion = o.get("action") or {}
-                    entradas.append({"tipo": "tool", "nombre": "web_search", "args": {"query": accion.get("query"), "tipo": accion.get("type")},
-                                     "decision": "ejecutada por OpenAI (hosted)", "resultado": {"status": o.get("status"), "fuentes": [s.get("url") for s in (accion.get("sources") or [])][:5]}})
+                    args = {"tipo": accion.get("type")}
+                    if accion.get("query"): args["query"] = accion.get("query")
+                    if accion.get("url"): args["url"] = accion.get("url")          # open_page: la hospedada abrió una página
+                    if accion.get("pattern"): args["pattern"] = accion.get("pattern")  # find: buscó dentro de la página
+                    # las fuentes citadas vienen en las anotaciones del mensaje final, no en la acción
+                    citas = [a.get("url") for m in salida if m.get("type") == "message" for c in (m.get("content") or []) for a in (c.get("annotations") or []) if a.get("type") == "url_citation"]
+                    entradas.append({"tipo": "tool", "nombre": "web_search", "args": args, "decision": "ejecutada por OpenAI (hosted)",
+                                     "resultado": {"status": o.get("status"), "fuentes_citadas_en_la_respuesta": list(dict.fromkeys(citas))[:5]}})
             resumen = [s.get("text", "") for o in salida if o.get("type") == "reasoning" for s in (o.get("summary") or [])]
             n = 1 + sum(1 for e in entradas if e["tipo"] == "modelo")
             entradas.append({"tipo": "modelo", "vuelta": n, "latencia_s": round(_segundos(span), 2), "input_tokens": tin,
