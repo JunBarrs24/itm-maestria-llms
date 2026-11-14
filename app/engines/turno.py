@@ -51,7 +51,13 @@ def preparar(sesion: Sesion, texto: str, opciones: dict):
     sesion.estado["modo"] = modo
     contexto_app = {"usuario_id": sesion.estado.get("usuario_id"), "side_effects_automaticos": o["side_effects"], "modo": modo,
                     "ejecutadas": [], "skills_cargados": [], "cambios_de_modo": []}
-    visibles = ["transfer_to_*"] if modo == "triage" else tools_del_modo(modo) + ["cargar_skill"] + (["cambiar_modo"] if o["diseno"] == "modes" else [])
+    if modo == "triage":
+        visibles = ["transfer_to_*"]
+    elif o["diseno"] == "modes":
+        # is_enabled se evalúa en cada llamada: lo habilitado en el modo de arranque; las hospedadas (web_search) van siempre
+        visibles = [t.name for t in agente.tools if getattr(t, "hosted", False) or not callable(getattr(t, "is_enabled", None)) or t.name in tools_del_modo(modo)]
+    else:
+        visibles = [t.name for t in agente.tools]
     trace.append({"tipo": "routing", "diseno": o["diseno"], "ruta": modo, "regla": regla, "proveedor": o["proveedor"], "modelo": models.nombre_modelo(o["proveedor"]),
                   "tools_visibles": visibles, "side_effects_automaticos": o["side_effects"],
                   "effort": models.effort_efectivo(o["effort"], modo in ("general", "web") or o["diseno"] == "modes")})
