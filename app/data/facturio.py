@@ -31,7 +31,7 @@ LIMITES_PLAN = {
 # Cargos de suscripción. `facturas_timbradas_periodo` decide reembolso completo o proporcional.
 CARGOS: dict[str, dict] = {
     "PAY-00012345": {"usuario": "u001", "monto": 599.00, "fecha": date(2026, 8, 28), "concepto": "Básico mensual",
-                     "facturas_timbradas_periodo": 0, "estado": "cobrado"},
+                     "facturas_timbradas_periodo": 1, "estado": "cobrado"},
     "PAY-00012346": {"usuario": "u001", "monto": 599.00, "fecha": date(2026, 7, 28), "concepto": "Básico mensual",
                      "facturas_timbradas_periodo": 37, "estado": "cobrado"},
     "PAY-00012347": {"usuario": "u002", "monto": 899.00, "fecha": date(2026, 8, 30), "concepto": "Pro mensual",

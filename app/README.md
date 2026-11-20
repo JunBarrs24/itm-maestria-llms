@@ -23,7 +23,7 @@ python -m evals.harness --disenos routing,modes --corridas 3 --juez   # evaluaci
 | `guardrails/` | Validaciones deterministas de entrada (antes del modelo) y de salida (sobre la respuesta). | 10, 12 |
 | `modes/` | Un agente, varios modos: instrucciones (`.md`) más tools visibles por modo; el routing por regex. | 8, 12 |
 | `skills/` | Procedimientos en `SKILL.md` que el agente carga cuando hacen falta. | 12 |
-| `agents_app/` | Quién atiende: un agente con modo fijo (routing), un agente que cambia de modo (modes), triage con handoffs. | 12 |
+| `agents_app/` | Quién atiende: routing, modes, triage con handoffs, orquestador (agents as tools), paralelo, grafo en Python puro. | 12, 13 |
 | `engines/` | El loop (Agents SDK), la pausa y reanudación, el streaming, el trace y el turno completo. | 10 |
 | `providers/` | Con qué API se habla: OpenAI, o un endpoint compatible de Anthropic o Gemini. | 12 |
 | `evals/` | Gold set, harness de N corridas por diseño, juez LLM, resultados. | 10, 12 |
@@ -46,7 +46,8 @@ Flujo de un turno: `main.py` recibe el mensaje → `engines/turno.py` elige el d
 
 ## Controles de la cabecera
 
-* **Diseño**: quién elige el especialista. `routing` (el código, con regex), `modes` (el modelo, con `cambiar_modo`), `handoffs` (un agente de triage entrega a un especialista con todo el historial), `handoffs, paquete mínimo` (igual, pero el especialista recibe solo el estado y el último mensaje). Mismas tools, mismos guardrails, mismo trace.
+* **Diseño**: quién elige el especialista y cómo se le llama. `routing` (el código, con regex), `modes` (el modelo, con `cambiar_modo`), `handoffs` (un agente de triage entrega el turno a un especialista con todo el historial), `handoffs, paquete mínimo` (igual, con solo el estado y el último mensaje), `orquestador` (agents as tools: el orquestador llama especialistas y responde él), `paralelo` (fan-out a todos los especialistas a la vez y síntesis), `grafo` (el código decide la ruta nodo por nodo; el modelo solo redacta). Mismas tools, mismos guardrails, mismo trace.
+* **Con plan** (routing y modes): el modelo escribe los pasos con `crear_plan` antes de actuar y los ve con su avance en cada vuelta. El trace muestra el plan y las tools llamadas, para ver si lo siguió.
 * **Proveedor**: OpenAI (Responses API, razonamiento configurable) o un endpoint compatible de Anthropic o Gemini si hay llave en `.env`.
 * **Contexto**: A historial completo, B ventana, C estado estructurado más resumen más ventana corta.
 * **Effort** y **Compresor**: razonamiento por turno y cómo se resume lo que sale de la ventana.

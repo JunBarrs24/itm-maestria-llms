@@ -1,0 +1,49 @@
+[routing] t1 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 2.0 tokens 2506 lat 2.99s costo $0.00243 juez 4
+[routing] t2 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 2.0 tokens 2484 lat 2.65s costo $0.0023 juez 5
+[routing] t3 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 2.0 tokens 2751 lat 4.46s costo $0.00271 juez 4
+[routing] t4 éxito 0/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 4.0 tokens 6397 lat 5.98s costo $0.00644 juez 5
+[routing] t5 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 3.0 tokens 4530 lat 4.4s costo $0.00448 juez 3.67
+[routing] t6 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 3.0 tokens 4415 lat 5.04s costo $0.00465 juez 5
+[routing] t7 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 3.0 tokens 4262 lat 5.17s costo $0.00475 juez 5
+[routing] t8 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 2.3 tokens 2532 lat 5.73s costo $0.00354 juez 5
+[routing+plan] t1 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 2.0 tokens 2822 lat 2.93s costo $0.00272 juez 5
+[routing+plan] t2 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 2.3 tokens 3357 lat 3.18s costo $0.00308 juez 5
+[routing+plan] t3 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 2.0 tokens 3042 lat 3.38s costo $0.00285 juez 5
+[routing+plan] t4 éxito 0/3 tools_ok 2/3 prohibida 0 guardrail 0 vueltas 5.7 tokens 11623 lat 11.07s costo $0.01117 juez 5
+[routing+plan] t5 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 4.0 tokens 7198 lat 8.37s costo $0.00716 juez 3.67
+[routing+plan] t6 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 4.0 tokens 7272 lat 8.09s costo $0.0073 juez 5
+[routing+plan] t7 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 3.3 tokens 5341 lat 6.34s costo $0.00562 juez 5
+[routing+plan] t8 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 4.3 tokens 6710 lat 8.89s costo $0.00685 juez 4.67
+[orquestador] t1 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 4.0 tokens 3943 lat 6.75s costo $0.00436 juez 5
+[orquestador] t2 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 4.0 tokens 4015 lat 7.37s costo $0.00463 juez 5
+[orquestador] t3 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 4.3 tokens 5225 lat 9.81s costo $0.00675 juez 5
+[orquestador] t4 éxito 0/3 tools_ok 0/3 prohibida 0 guardrail 0 vueltas 7.7 tokens 11121 lat 16.81s costo $0.01307 juez 4.33
+[orquestador] t5 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 5.0 tokens 7357 lat 14.61s costo $0.01091 juez 4.67
+[orquestador] t6 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 5.0 tokens 6900 lat 13.23s costo $0.00956 juez 4.67
+[orquestador] t7 éxito 3/3 tools_ok 2/3 prohibida 0 guardrail 0 vueltas 5.0 tokens 7019 lat 14.34s costo $0.01033 juez 5
+[orquestador] t8 éxito 2/3 tools_ok 2/3 prohibida 0 guardrail 0 vueltas 5.0 tokens 7017 lat 21.03s costo $0.01328 juez 4.67
+[paralelo] t1 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 8.3 tokens 8924 lat 8.23s costo $0.00977 juez 4
+[paralelo] t2 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 9.3 tokens 10251 lat 10.27s costo $0.0104 juez 5
+[paralelo] t3 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 7.0 tokens 7204 lat 6.08s costo $0.00793 juez 5
+[paralelo] t4 éxito 0/3 tools_ok 2/3 prohibida 0 guardrail 0 vueltas 13.7 tokens 20947 lat 12.35s costo $0.02153 juez 5
+[paralelo] t5 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 12.7 tokens 18278 lat 11.88s costo $0.019 juez 4.67
+[paralelo] t6 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 11.3 tokens 15564 lat 44.17s costo $0.01716 juez 5
+[paralelo] t7 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 8.7 tokens 10052 lat 11.28s costo $0.01244 juez 5
+[paralelo] t8 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 8.7 tokens 10536 lat 10.51s costo $0.01353 juez 5
+[grafo] t1 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 236 lat 1.53s costo $0.0004 juez 5
+[grafo] t2 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 158 lat 1.27s costo $0.0003 juez 5
+[grafo] t3 éxito 0/3 tools_ok 0/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 166 lat 1.42s costo $0.00037 juez 3
+[grafo] t4 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 359 lat 2.5s costo $0.00095 juez 4
+[grafo] t5 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 295 lat 2.0s costo $0.00061 juez 5
+[grafo] t6 éxito 3/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 329 lat 2.94s costo $0.0009 juez 5
+[grafo] t7 éxito 1/3 tools_ok 3/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 217 lat 2.0s costo $0.00066 juez 5
+[grafo] t8 éxito 0/3 tools_ok 0/3 prohibida 0 guardrail 0 vueltas 1.0 tokens 208 lat 1.8s costo $0.0006 juez 4.33
+
+Resumen por diseño:
+  routing          éxito 21/24  tools_ok 24/24  prohibidas 0  guardrails 0  vueltas 2.67  tokens 3734  lat 4.55s  costo $0.0313  juez 4.58
+  routing+plan     éxito 21/24  tools_ok 23/24  prohibidas 0  guardrails 0  vueltas 3.46  tokens 5921  lat 6.53s  costo $0.0467  juez 4.79
+  orquestador      éxito 20/24  tools_ok 19/24  prohibidas 0  guardrails 0  vueltas 5.00  tokens 6575  lat 12.99s  costo $0.0729  juez 4.79
+  paralelo         éxito 21/24  tools_ok 23/24  prohibidas 0  guardrails 0  vueltas 9.96  tokens 12720  lat 14.35s  costo $0.1118  juez 4.83
+  grafo            éxito 16/24  tools_ok 18/24  prohibidas 0  guardrails 0  vueltas 1.00  tokens 246  lat 1.93s  costo $0.0048  juez 4.54
+
+Guardado en evals/results/eval_semana13.json

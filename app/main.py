@@ -39,7 +39,8 @@ class Mensaje(BaseModel):
     sesion_id: str
     texto: str
     estrategia: Literal["completo", "ventana", "estado"] = "estado"
-    diseno: Literal["routing", "modes", "handoffs", "handoffs_minimo"] = "routing"
+    diseno: Literal["routing", "modes", "handoffs", "handoffs_minimo", "orquestador", "paralelo", "grafo"] = "routing"
+    con_plan: bool = False            # plan mode: el modelo escribe los pasos antes de actuar (routing y modes)
     proveedor: str = "openai"
     side_effects: bool = False        # permitir side effects automáticos; apagado, el SDK pausa y una persona decide
     effort: Optional[str] = None      # None usa REASONING_EFFORT

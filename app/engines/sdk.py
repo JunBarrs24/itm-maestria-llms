@@ -16,7 +16,7 @@ import threading
 import time
 from typing import Any
 
-from agents import Agent, InputGuardrailTripwireTriggered, MaxTurnsExceeded, ModelBehaviorError, OutputGuardrailTripwireTriggered, Runner, trace
+from agents import Agent, InputGuardrailTripwireTriggered, MaxTurnsExceeded, ModelBehaviorError, OutputGuardrailTripwireTriggered, RunHooks, Runner, trace
 from agents.tracing import gen_trace_id
 
 import config
@@ -30,6 +30,15 @@ threading.Thread(target=_LOOP.run_forever, name="agents-sdk-loop", daemon=True).
 
 def _en_el_loop(coro):
     return asyncio.run_coroutine_threadsafe(coro, _LOOP).result()
+
+
+class RegistroDeTools(RunHooks):
+    """Anota en el contexto de la aplicación cada tool que se llama: el plan lo usa para marcar avance."""
+    async def on_tool_start(self, context, agent, tool):
+        context.context.setdefault("tools_llamadas", []).append(getattr(tool, "name", "?"))
+
+
+HOOKS = RegistroDeTools()
 
 
 def _totales(entradas: list[dict]) -> dict:
@@ -93,7 +102,7 @@ def correr(agente: Agent, entrada: Any, contexto_app: dict, previo: list[dict] |
 
     async def corrida():
         with trace("Facturio Soporte", trace_id=tid):
-            return await Runner.run(agente, entrada, context=contexto_app, max_turns=config.MAX_TURNS)
+            return await Runner.run(agente, entrada, context=contexto_app, max_turns=config.MAX_TURNS, hooks=HOOKS)
     try:
         return _empaquetar(_en_el_loop(corrida()), tid, t0, previo)
     except (InputGuardrailTripwireTriggered, OutputGuardrailTripwireTriggered, MaxTurnsExceeded, ModelBehaviorError) as e:
@@ -107,6 +116,46 @@ def reanudar(agente: Agent, pendiente: dict, aprobar: bool, contexto_app: dict, 
         (estado.approve if aprobar else estado.reject)(it)
     previo = trace_previo + [{"tipo": "aviso", "mensaje": ("aprobado" if aprobar else "rechazado") + " por una persona; el SDK reanuda desde el estado guardado"}]
     return correr(agente, estado, contexto_app, previo=previo)
+
+
+def correr_paralelo(entrada: Any, contexto_app: dict, proveedor: str, effort: str, summary: str) -> dict:
+    """Fan-out a los especialistas con asyncio.gather y fan-in con síntesis (agents_app/paralelo.py)."""
+    from agents_app.paralelo import correr_en_paralelo
+    tid, t0 = gen_trace_id(), time.perf_counter()
+
+    async def corrida():
+        with trace("Facturio Soporte", trace_id=tid):
+            return await correr_en_paralelo(entrada, contexto_app, proveedor, effort, summary, config.MAX_TURNS)
+    try:
+        final, parciales = _en_el_loop(corrida())
+    except (InputGuardrailTripwireTriggered, OutputGuardrailTripwireTriggered, MaxTurnsExceeded, ModelBehaviorError) as e:
+        return _por_excepcion(e, tid, t0, None)
+    entradas = PROCESADOR.tomar(tid)
+    entradas.insert(0, {"tipo": "aviso", "mensaje": f"fan-out: {len(parciales)} especialistas a la vez (asyncio.gather); fan-in: un sintetizador. "
+                                                    f"Latencia del turno = la del más lento + la síntesis"})
+    return _paquete(entradas, t0, str(final.final_output or ""))
+
+
+def correr_grafo(estado_grafo: dict, proveedor: str, effort: str, summary: str, desde: str = "clasificar") -> dict:
+    """El grafo en Python puro (agents_app/grafo.py): el código decide la ruta; el modelo solo redacta."""
+    from agents_app.grafo import correr_grafo as _correr
+    tid, t0 = gen_trace_id(), time.perf_counter()
+
+    async def corrida():
+        with trace("Facturio Soporte", trace_id=tid):
+            return await _correr(estado_grafo, proveedor, effort, summary, desde)
+    estado, pasos = _en_el_loop(corrida())
+    entradas = []
+    for paso in pasos:
+        entradas.append({"tipo": "nodo", "nombre": paso["nodo"], "cambios": paso["cambios"]})
+    entradas += PROCESADOR.tomar(tid)          # la única llamada al modelo: el nodo redactar
+    if estado.get("pausa"):
+        it = estado["pausa"]
+        entradas.append({"tipo": "tool", "nombre": it["tool"], "args": it["args"], "decision": "pausada por el grafo: espera aprobación humana",
+                         "resultado": {"ejecutado": False, "razon": "nodo aprobar"}})
+        texto = f"Antes de ejecutar {it['tool']}({json.dumps(it['args'], ensure_ascii=False)}) hace falta la aprobación de una persona."
+        return _paquete(entradas, t0, texto, pendiente={"grafo": estado, "items": [{**it, "call_id": "grafo"}]})
+    return _paquete(entradas, t0, str(estado.get("respuesta") or ""))
 
 
 async def correr_stream(agente: Agent, entrada: Any, contexto_app: dict):

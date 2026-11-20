@@ -56,6 +56,7 @@
   <label>Effort <select id="effort"></select></label>
   <label>Compresor <select id="compresor"></select></label>
   <label><input type="checkbox" id="side_effects"> side effects automáticos</label>
+  <label title="routing y modes: el modelo escribe el plan antes de actuar"><input type="checkbox" id="con_plan"> con plan</label>
   <label><input type="checkbox" id="stream"> streaming (SSE)</label>
   <button id="reiniciar" style="font-size:12px">reiniciar sesión</button>
   <span class="cfg" id="cfg"></span>
@@ -93,7 +94,8 @@ const EJEMPLOS = [
   "Escríbeme un poema sobre el clima de Morelia",
 ];
 EJEMPLOS.forEach(t => { const b = document.createElement("button"); b.textContent = t; b.onclick = () => { $("#texto").value = t; }; $("#ejemplos").appendChild(b); });
-const NOMBRES_DISENO = { routing: "routing (regex, 1 agente)", modes: "modes (1 agente, cambiar_modo)", handoffs: "handoffs (triage + especialistas)", handoffs_minimo: "handoffs, paquete mínimo" };
+const NOMBRES_DISENO = { routing: "routing (regex, 1 agente)", modes: "modes (1 agente, cambiar_modo)", handoffs: "handoffs (triage + especialistas)", handoffs_minimo: "handoffs, paquete mínimo",
+                         orquestador: "orquestador (agents as tools)", paralelo: "paralelo (fan-out, fan-in)", grafo: "grafo (el código decide)" };
 
 function opcion(sel, v, texto, on) { const o = document.createElement("option"); o.value = v; o.textContent = texto; if (on) o.selected = true; sel.appendChild(o); }
 fetch("/config").then(r => r.json()).then(c => {
@@ -139,6 +141,8 @@ function render() {
       if (p.tipo === "handoff") return `<div class="paso handoff"><b>Handoff ${esc(p.de)} → ${esc(p.a)}</b>otro agente toma el turno</div>`;
       if (p.tipo === "agente") return `<div class="paso handoff"><b>Agente ${esc(p.nombre)}</b>${p.latencia_s}s</div>`;
       if (p.tipo === "modo") return `<div class="paso modo"><b>Cambio de modo ${esc(p.de)} → ${esc(p.a)}</b>el modelo lo decidió; en la siguiente vuelta ve otras instrucciones y otras tools</div>`;
+      if (p.tipo === "nodo") return `<div class="paso modo"><b>Nodo ${esc(p.nombre)}</b>${esc(JSON.stringify(p.cambios)).slice(0, 300)}</div>`;
+      if (p.tipo === "plan") return `<div class="paso skill"><b>Plan del modelo · ${p.hechos}/${p.pasos.length} pasos marcados</b>${p.pasos.map((s, i) => `${i + 1}. ${esc(s)}`).join("<br>")}<br><span class="vacio">tools llamadas: ${esc(p.tools_llamadas.join(", "))}</span></div>`;
       if (p.tipo === "skill") return `<div class="paso skill"><b>Skill cargado: ${esc(p.nombre)}</b>~${p.tokens_aprox} tokens que solo viajan cuando hacen falta</div>`;
       if (p.tipo === "modelo") return `<div class="paso modelo"><b>Llamada al modelo (vuelta ${p.vuelta})</b>${p.latencia_s}s · in ${p.input_tokens} · out ${p.output_tokens} · razonamiento ${p.reasoning_tokens}${p.pide_tools.length ? " · pide: " + esc(p.pide_tools.join(", ")) : " · responde"}</div>`;
       if (p.tipo === "tool") return `<div class="paso tool"><b>Tool ${esc(p.nombre)} · ${esc(p.decision)}</b>args: ${esc(JSON.stringify(p.args))}<pre>${esc(JSON.stringify(p.resultado, null, 1))}</pre></div>`;
@@ -163,14 +167,14 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => { tab =
 
 function cuerpo(texto) {
   return { sesion_id: sesionId, texto, estrategia: $("#estrategia").value, diseno: $("#diseno").value, proveedor: $("#proveedor").value,
-           side_effects: $("#side_effects").checked, effort: $("#effort").value, compresor: $("#compresor").value };
+           side_effects: $("#side_effects").checked, con_plan: $("#con_plan").checked, effort: $("#effort").value, compresor: $("#compresor").value };
 }
 $("#entrada").onsubmit = async e => {
   e.preventDefault();
   const texto = $("#texto").value.trim(); if (!texto) return;
   $("#texto").value = ""; agregar("user", texto);
   const body = cuerpo(texto);
-  if ($("#stream").checked) return enviarStream(body);
+  if ($("#stream").checked && !["paralelo", "grafo"].includes(body.diseno)) return enviarStream(body);
   const r = await fetch("/chat", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) });
   ultimo = await r.json();
   if (ultimo.error) agregar("bot", "Error: " + ultimo.error); else agregar("bot", ultimo.respuesta, pie(ultimo));

@@ -9,14 +9,14 @@ El diseño elige qué agente atiende; todo lo demás (contexto, estado, polític
 from __future__ import annotations
 
 import config
-from agents_app import soporte, triage
+from agents_app import orquestador, soporte, triage
 from context.compression import comprimir_con_llm, comprimir_determinista
 from context.session import Sesion, contar_tokens
 from engines import sdk
 from modes.modes import ruta_determinista, tools_del_modo
 from providers import models
 
-DISENOS = ("routing", "modes", "handoffs", "handoffs_minimo")
+DISENOS = ("routing", "modes", "handoffs", "handoffs_minimo", "orquestador", "paralelo", "grafo")
 
 
 def _normalizar(opciones: dict) -> dict:
@@ -27,6 +27,7 @@ def _normalizar(opciones: dict) -> dict:
         "effort": opciones.get("effort") if opciones.get("effort") in config.EFFORTS else config.REASONING_EFFORT,
         "compresor": opciones.get("compresor") if opciones.get("compresor") in config.COMPRESORES else config.COMPRESOR,
         "proveedor": opciones.get("proveedor") if opciones.get("proveedor") in models.PROVEEDORES else "openai",
+        "con_plan": bool(opciones.get("con_plan", False)),
     }
 
 
@@ -36,23 +37,40 @@ def preparar(sesion: Sesion, texto: str, opciones: dict):
     sesion.historial.append({"role": "user", "content": texto})
     sesion.actualizar_estado(texto, [])          # KEEP sobre el mensaje actual, antes del loop
     # 1) quién atiende
+    agente = None
     if o["diseno"] == "routing":
         modo = ruta_determinista(texto)
-        agente = soporte.agente_routing(modo, o["proveedor"], o["effort"], config.REASONING_SUMMARY)
+        agente = soporte.agente_routing(modo, o["proveedor"], o["effort"], config.REASONING_SUMMARY, con_plan=o["con_plan"])
         regla = "regex sobre el mensaje (el código elige el modo)"
     elif o["diseno"] == "modes":
         modo = sesion.estado.get("modo") if sesion.estado.get("modo") not in (None, "general") else "inicio"
-        agente = soporte.agente_modes(o["proveedor"], o["effort"], config.REASONING_SUMMARY)
+        agente = soporte.agente_modes(o["proveedor"], o["effort"], config.REASONING_SUMMARY, con_plan=o["con_plan"])
         regla = "el modelo elige el modo con cambiar_modo"
+    elif o["diseno"] == "orquestador":
+        modo = "orquestador"
+        agente = orquestador.agente_orquestador(o["proveedor"], o["effort"], config.REASONING_SUMMARY)
+        regla = "un orquestador llama a los especialistas como tools (as_tool) y responde él"
+    elif o["diseno"] == "paralelo":
+        modo = "paralelo"
+        regla = "el código manda la pregunta a todos los especialistas a la vez (asyncio.gather) y un sintetizador responde"
+    elif o["diseno"] == "grafo":
+        modo = ruta_determinista(texto)
+        regla = "el código decide la ruta nodo por nodo (grafo en Python); el modelo solo redacta"
     else:
         modo = "triage"
         agente = triage.agente_triage(o["proveedor"], o["effort"], config.REASONING_SUMMARY, contexto_minimo=(o["diseno"] == "handoffs_minimo"))
         regla = "un agente de triage entrega a un especialista" + (" (paquete mínimo)" if o["diseno"] == "handoffs_minimo" else " (historial completo)")
     sesion.estado["modo"] = modo
     contexto_app = {"usuario_id": sesion.estado.get("usuario_id"), "side_effects_automaticos": o["side_effects"], "modo": modo,
-                    "ejecutadas": [], "skills_cargados": [], "cambios_de_modo": []}
+                    "ejecutadas": [], "skills_cargados": [], "cambios_de_modo": [], "tools_llamadas": [], "con_plan": o["con_plan"]}
     if modo == "triage":
         visibles = ["transfer_to_*"]
+    elif o["diseno"] == "orquestador":
+        visibles = [t.name for t in agente.tools]
+    elif o["diseno"] == "paralelo":
+        visibles = ["(los tres especialistas, con sus tools, a la vez)"]
+    elif o["diseno"] == "grafo":
+        visibles = ["(ninguna para el modelo: el grafo consulta data/ y policies/ directo)"]
     elif o["diseno"] == "modes":
         # is_enabled se evalúa en cada llamada: lo habilitado en el modo de arranque; las hospedadas (web_search) van siempre
         visibles = [t.name for t in agente.tools if getattr(t, "hosted", False) or not callable(getattr(t, "is_enabled", None)) or t.name in tools_del_modo(modo)]
@@ -60,7 +78,7 @@ def preparar(sesion: Sesion, texto: str, opciones: dict):
         visibles = [t.name for t in agente.tools]
     trace.append({"tipo": "routing", "diseno": o["diseno"], "ruta": modo, "regla": regla, "proveedor": o["proveedor"], "modelo": models.nombre_modelo(o["proveedor"]),
                   "tools_visibles": visibles, "side_effects_automaticos": o["side_effects"],
-                  "effort": models.effort_efectivo(o["effort"], modo in ("general", "web") or o["diseno"] == "modes")})
+                  "effort": models.effort_efectivo(o["effort"], modo in ("general", "web") or o["diseno"] == "modes"), "con_plan": o["con_plan"]})
     # 2) qué ve el modelo
     contexto = sesion.construir_contexto(o["estrategia"])
     trace.append({"tipo": "contexto", "estrategia": o["estrategia"], "mensajes": len(contexto), "tokens_aprox": sum(contar_tokens(m["content"]) for m in contexto)})
@@ -76,6 +94,10 @@ def cerrar(sesion: Sesion, texto: str, o: dict, salida: dict, trace: list[dict],
         trace.append({"tipo": "skill", "nombre": s["skill"], "tokens_aprox": s["tokens_aprox"]})
     for c in contexto_app.get("cambios_de_modo", []):
         trace.append({"tipo": "modo", "de": c["de"], "a": c["a"]})
+    if contexto_app.get("plan"):
+        hechos = sum(1 for p in contexto_app["plan"] if p["hecho"])
+        trace.append({"tipo": "plan", "pasos": [p["paso"] for p in contexto_app["plan"]], "hechos": hechos,
+                      "tools_llamadas": contexto_app.get("tools_llamadas", [])})
     sesion.historial.append({"role": "assistant", "content": salida["texto_final"]})
     sesion.actualizar_estado(texto, salida["resultados_tools"])
     if o["estrategia"] == "estado" and len(sesion.historial) >= config.UMBRAL_COMPRESION and (len(sesion.historial) - config.UMBRAL_COMPRESION) % config.UMBRAL_COMPRESION == 0:
@@ -102,13 +124,19 @@ def respuesta(sesion: Sesion, o: dict, salida: dict, trace: list[dict], contexto
 
 
 def _guardar_pendiente(sesion: Sesion, agente, salida: dict, trace: list[dict], texto: str, o: dict, contexto: list[dict], contexto_app: dict) -> None:
-    sesion.pendiente = {"agente": agente, "estado_sdk": salida["pendiente"]["estado"], "items": salida["pendiente"]["items"],
+    sesion.pendiente = {"agente": agente, "estado_sdk": salida["pendiente"].get("estado") or salida["pendiente"].get("grafo"), "items": salida["pendiente"]["items"],
                         "trace": trace, "texto": texto, "opciones": o, "contexto": contexto, "contexto_app": contexto_app}
 
 
 def responder(sesion: Sesion, texto: str, opciones: dict) -> dict:
     o, agente, contexto, contexto_app, trace = preparar(sesion, texto, opciones)
-    salida = sdk.correr(agente, contexto, contexto_app)
+    if o["diseno"] == "paralelo":
+        salida = sdk.correr_paralelo(contexto, contexto_app, o["proveedor"], o["effort"], config.REASONING_SUMMARY)
+    elif o["diseno"] == "grafo":
+        estado_grafo = {"pregunta": texto, "usuario_id": sesion.estado.get("usuario_id"), "aprobado": True if o["side_effects"] else None}
+        salida = sdk.correr_grafo(estado_grafo, o["proveedor"], o["effort"], config.REASONING_SUMMARY)
+    else:
+        salida = sdk.correr(agente, contexto, contexto_app)
     trace = trace + salida["trace"]
     if salida["pendiente"]:
         _guardar_pendiente(sesion, agente, salida, trace, texto, o, contexto, contexto_app)
@@ -122,7 +150,13 @@ def decidir_aprobacion(sesion: Sesion, aprobar: bool) -> dict:
     if not p:
         return {"error": "no hay ninguna aprobación pendiente en esta sesión (si acabas de decidir, la decisión ya se está procesando)"}
     sesion.pendiente = None
-    salida = sdk.reanudar(p["agente"], {"estado": p["estado_sdk"], "items": p["items"]}, aprobar, p["contexto_app"], p["trace"])
+    if isinstance(p["estado_sdk"], dict) and "pregunta" in p["estado_sdk"]:      # pausa del grafo: reanudar en el nodo aprobar
+        estado_grafo = {**p["estado_sdk"], "aprobado": aprobar, "pausa": None}
+        o = p["opciones"]
+        salida = sdk.correr_grafo(estado_grafo, o["proveedor"], o["effort"], config.REASONING_SUMMARY, desde="aprobar")
+        salida["trace"] = p["trace"] + [{"tipo": "aviso", "mensaje": ("aprobado" if aprobar else "rechazado") + " por una persona; el grafo continúa en el nodo aprobar"}] + salida["trace"]
+    else:
+        salida = sdk.reanudar(p["agente"], {"estado": p["estado_sdk"], "items": p["items"]}, aprobar, p["contexto_app"], p["trace"])
     trace = salida["trace"]
     if salida["pendiente"]:
         _guardar_pendiente(sesion, p["agente"], salida, trace, p["texto"], p["opciones"], p["contexto"], p["contexto_app"])

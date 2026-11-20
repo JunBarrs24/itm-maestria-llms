@@ -23,6 +23,7 @@ from guardrails.output import DE_SALIDA
 from modes.modes import MODOS, instrucciones, tools_del_modo
 from providers import models
 from skills import loader
+from tools.crear_plan import plan_para_instrucciones
 from tools.registry import registrar
 
 NOMBRE = "Soporte Facturio"
@@ -35,32 +36,45 @@ def _tool_habilitada_en_modo(nombre: str):
     return habilitada
 
 
+AVISO_PLAN = ("\n\nAntes de usar cualquier otra herramienta en una solicitud de más de un paso, escribe el plan con crear_plan "
+              "y luego sigue los pasos en orden.")
+
+
 def _instrucciones_del_modo(ctx: RunContextWrapper[dict], agent: Agent) -> str:
-    """instructions como función: el prompt del modo vigente más el índice de skills."""
+    """instructions como función: el prompt del modo vigente más el índice de skills (y el plan, si lo hay)."""
     modo = ctx.context.get("modo", "general")
     aviso = ("" if ctx.context.get("side_effects_automaticos") else
              " Las acciones (reembolsos, escalaciones) se detienen para que una persona las apruebe; puedes pedirlas, pero no prometas que ya ocurrieron.")
     return (instrucciones(modo) + aviso + loader.indice_para_instrucciones()
-            + "\n\nSi el tema no corresponde a tu modo actual, cambia de modo con cambiar_modo antes de responder.")
+            + "\n\nSi el tema no corresponde a tu modo actual, cambia de modo con cambiar_modo antes de responder."
+            + (AVISO_PLAN + plan_para_instrucciones(ctx) if ctx.context.get("con_plan") else ""))
 
 
-def agente_routing(modo: str, proveedor: str, effort: str, summary: str) -> Agent:
+def _con_plan(texto_fijo: str):
+    """instructions como función para un agente de modo fijo: el texto más el plan con su avance."""
+    def instr(ctx: RunContextWrapper[dict], agent: Agent) -> str:
+        return texto_fijo + AVISO_PLAN + plan_para_instrucciones(ctx)
+    return instr
+
+
+def agente_routing(modo: str, proveedor: str, effort: str, summary: str, con_plan: bool = False) -> Agent:
     """Diseño routing: modo fijo, elegido por el código. Sin cambiar_modo."""
     tools = registrar()
-    visibles = [tools[n] for n in tools_del_modo(modo)] + [tools["cargar_skill"]]
-    return Agent(name=NOMBRE, instructions=instrucciones(modo) + loader.indice_para_instrucciones(),
+    visibles = [tools[n] for n in tools_del_modo(modo)] + [tools["cargar_skill"]] + ([tools["crear_plan"]] if con_plan else [])
+    texto = instrucciones(modo) + loader.indice_para_instrucciones()
+    return Agent(name=NOMBRE, instructions=_con_plan(texto) if con_plan else texto,
                  tools=visibles, model=models.modelo(proveedor),
                  model_settings=models.ajustes(proveedor, effort, summary, con_hosted=any(t.hosted for t in visibles)),
                  input_guardrails=DE_ENTRADA, output_guardrails=DE_SALIDA)
 
 
-def agente_modes(proveedor: str, effort: str, summary: str) -> Agent:
+def agente_modes(proveedor: str, effort: str, summary: str, con_plan: bool = False) -> Agent:
     """Diseño modes: todas las tools registradas, cada una habilitada según el modo del contexto."""
     tools = registrar()
     dinamicas = [dataclasses.replace(t, is_enabled=_tool_habilitada_en_modo(n)) for n, t in tools.items()
-                 if n not in ("cambiar_modo", "cargar_skill") and not t.hosted]
+                 if n not in ("cambiar_modo", "cargar_skill", "crear_plan") and not t.hosted]
     hospedadas = [t for t in tools.values() if t.hosted]   # las hospedadas no aceptan is_enabled: siempre visibles en este diseño
     return Agent(name=NOMBRE, instructions=_instrucciones_del_modo,
-                 tools=dinamicas + hospedadas + [tools["cambiar_modo"], tools["cargar_skill"]],
+                 tools=dinamicas + hospedadas + [tools["cambiar_modo"], tools["cargar_skill"]] + ([tools["crear_plan"]] if con_plan else []),
                  model=models.modelo(proveedor), model_settings=models.ajustes(proveedor, effort, summary, con_hosted=bool(hospedadas)),
                  input_guardrails=DE_ENTRADA, output_guardrails=DE_SALIDA)

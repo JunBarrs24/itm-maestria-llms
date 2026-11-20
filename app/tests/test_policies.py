@@ -12,7 +12,11 @@ def setup_function():
 
 
 def test_dueno_en_plazo_autorizado():
-    assert autorizar_reembolso("PAY-00012345", 599, "u001") == (True, "autorizado")
+    c = db.CARGOS["PAY-00012345"]
+    maximo = c["monto"] if c["facturas_timbradas_periodo"] == 0 else round(c["monto"] * 0.5, 2)   # la regla proporcional
+    assert autorizar_reembolso("PAY-00012345", maximo, "u001") == (True, "autorizado")
+    if maximo < c["monto"]:
+        assert not autorizar_reembolso("PAY-00012345", c["monto"], "u001")[0]
 
 
 def test_folio_ajeno_rechazado():

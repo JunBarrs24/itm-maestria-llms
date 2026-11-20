@@ -28,24 +28,34 @@ from evals.gold import GOLD                   # noqa: E402
 
 
 def correr(tarea: dict, diseno: str, proveedor: str, con_juez: bool) -> dict:
+    con_plan = diseno.endswith("+plan")           # "routing+plan": el mismo diseño con la casilla de plan
+    diseno = diseno.removesuffix("+plan")
     db.reiniciar_estado()
     s = Sesion()
     s.estado["usuario_id"] = tarea["usuario"]
     s.historial += [{"role": "user", "content": f"Soy el usuario {tarea['usuario']}."}, {"role": "assistant", "content": "Entendido."}]
     t0 = time.perf_counter()
     try:
-        r = turno.responder(s, tarea["objetivo"], {"estrategia": "estado", "diseno": diseno, "side_effects": True, "effort": "minimal", "proveedor": proveedor})
+        r = turno.responder(s, tarea["objetivo"], {"estrategia": "estado", "diseno": diseno, "side_effects": True, "effort": "minimal", "proveedor": proveedor, "con_plan": con_plan})
         if r.get("aprobacion_pendiente"):
             r = turno.decidir_aprobacion(s, True)
     except Exception as e:
         return {"exito": False, "tools_ok": False, "prohibida": False, "guardrail_salida": False, "vueltas": 0, "tokens": 0,
                 "latencia_s": round(time.perf_counter() - t0, 2), "costo_usd": 0.0, "tools": [], "juez": None, "error": f"{type(e).__name__}: {e}"}
     ex = [(p["nombre"], p["args"], p["resultado"]) for p in r["trace"] if p["tipo"] == "tool"]
+    # el grafo no llama tools del modelo: sus nodos cuentan como tools ejecutadas para el criterio
+    for p in r["trace"]:
+        if p["tipo"] == "nodo" and p["nombre"] in ("consultar", "reembolsar", "escalar"):
+            nombre = {"consultar": "consultar_factura" if "cargo" in p["cambios"] else "consultar_plan", "reembolsar": "reembolsar", "escalar": "escalar_a_humano"}[p["nombre"]]
+            ex.append((nombre, {}, p["cambios"].get("resultado_reembolso") or p["cambios"].get("ticket") or p["cambios"]))
+            if p["nombre"] == "consultar" and "plan" in p["cambios"] and "cargo" in p["cambios"]:
+                ex.append(("consultar_plan", {}, p["cambios"]["plan"]))
     usadas = {n for n, _, _ in ex}
     fila = {"exito": bool(tarea["exito"](r["respuesta"] or "", ex)), "tools_ok": tarea["tools"].issubset(usadas),
             "prohibida": any(n in tarea["prohibidas"] and isinstance(s_, dict) and s_.get("ejecutado") for n, _, s_ in ex),
             "guardrail_salida": any(p["tipo"] == "aviso" and "guardrail de salida" in p["mensaje"] for p in r["trace"]),
             "handoffs": sum(1 for p in r["trace"] if p["tipo"] == "handoff"), "skills": [p["nombre"] for p in r["trace"] if p["tipo"] == "skill"],
+            "plan": next(({"pasos": len(p["pasos"]), "hechos": p["hechos"]} for p in r["trace"] if p["tipo"] == "plan"), None),
             "vueltas": sum(1 for p in r["trace"] if p["tipo"] == "modelo"), "tokens": r["uso"]["input_tokens"] + r["uso"]["output_tokens"],
             "latencia_s": r["uso"]["latencia_s"], "costo_usd": r["uso"]["costo_usd"], "tools": [n for n, _, _ in ex], "respuesta": (r["respuesta"] or "")[:300], "juez": None}
     if con_juez:
@@ -57,7 +67,7 @@ def correr(tarea: dict, diseno: str, proveedor: str, con_juez: bool) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--corridas", type=int, default=3)
-    ap.add_argument("--disenos", default="routing,modes,handoffs,handoffs_minimo")
+    ap.add_argument("--disenos", default="routing,modes,handoffs,handoffs_minimo", help="también: orquestador, paralelo, grafo, y <diseño>+plan")
     ap.add_argument("--proveedor", default="openai")
     ap.add_argument("--juez", action="store_true")
     ap.add_argument("--salida", default=str(AQUI / "results" / "eval_resultados.json"))

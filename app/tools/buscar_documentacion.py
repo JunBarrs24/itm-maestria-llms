@@ -34,4 +34,5 @@ def buscar_documentacion(pregunta: str) -> dict:
         pregunta: La duda en lenguaje natural, con las palabras clave del cliente, por ejemplo
             "plazo para solicitar reembolso".
     """
+
     return {"fragmentos": documentacion.buscar(pregunta, k=3)}
